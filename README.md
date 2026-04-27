@@ -15,6 +15,7 @@ The percentages below are computed automatically. Each topic folder has a `CLAUD
 | Topic                                    | Progress      | %     | Status          |
 |------------------------------------------|---------------|-------|-----------------|
 | [code-quality-tools](./code-quality-tools/) | `██░░░░░░░░` | 17%   | In progress     |
+| [backend-data-layer](./backend-data-layer/) | `░░░░░░░░░░` |  0%   | Just started    |
 | [workflow](./workflow/)                  | `░░░░░░░░░░`  |  0%   | Not started     |
 
 > **How to read this:** the bar shows tens (each block = 10%). The % is the exact value from the topic's checklist. "Not started" means the topic stub exists but its checklist is still empty.
@@ -24,6 +25,10 @@ The percentages below are computed automatically. Each topic folder has a `CLAUD
 ### [code-quality-tools](./code-quality-tools/)
 
 Formatter, linter, type checker, and git hooks system — for Python and JavaScript/TypeScript. Concepts plus runnable mock projects where one `git commit` fires the whole pipeline.
+
+### [backend-data-layer](./backend-data-layer/)
+
+How a backend system moves data safely from an HTTP request down to a database row and back, organized as a five-layer pipeline (Model → ORM → Repository → Service → API). Concept docs per layer, cross-cutting concerns (SQL injection, performance, consistency), and a runnable FastAPI + SQLAlchemy mock app where one `POST /students` traces cleanly through every layer.
 
 ### [workflow](./workflow/)
 
