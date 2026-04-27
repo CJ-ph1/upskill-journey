@@ -1,0 +1,143 @@
+🧼 1. Formatter (e.g. Black, Prettier)
+🧠 What it does
+
+A formatter only changes how your code looks.
+
+It enforces a consistent style automatically:
+
+indentation
+spacing
+line breaks
+quote style
+line length
+✅ What it CAN do
+Rewrite code formatting automatically
+Make code consistent across a team
+Remove style arguments (“tabs vs spaces”)
+Fix messy formatting instantly
+
+Example:
+
+Before:
+
+def add( a,b ):return a+b
+
+After:
+
+def add(a, b):
+    return a + b
+
+❌ What it CANNOT do
+It does NOT detect bugs
+It does NOT understand logic
+It does NOT check correctness
+It does NOT care if your code is wrong
+
+Bad logic still passes:
+
+def add(a, b):
+    return a - b  # formatter doesn't care
+
+
+🧹 2. Linter (e.g. Ruff, ESLint)
+🧠 What it does
+
+A linter analyzes code for mistakes, bad patterns, and risky code.
+
+It is like a code reviewer that never sleeps.
+
+✅ What it CAN do
+Detect unused variables/imports
+Catch undefined variables
+Warn about bad practices
+Enforce style rules (naming, structure)
+Detect simple bugs before runtime
+Auto-fix some issues (Ruff can)
+
+Example:
+
+import os  # unused
+
+def test():
+    x = 1  # unused variable
+❌ What it CANNOT do
+It does NOT guarantee code is correct
+It does NOT understand full program behavior
+It cannot simulate real execution fully
+It may miss complex logical bugs
+
+Example (lint passes, but logic is wrong):
+
+def divide(a, b):
+    return a + b  # linter won't know this is wrong
+
+🧪 3. Type Checker (e.g. MyPy, TypeScript)
+🧠 What it does
+
+A type checker ensures you are using data types correctly before running code.
+
+It works using static analysis, not execution.
+
+✅ What it CAN do
+Catch wrong data types
+Prevent type mismatch bugs
+Improve code safety and readability
+Help IDE autocomplete and suggestions
+
+Example:
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+add("1", "2")  # error
+❌ What it CANNOT do
+It does NOT check runtime logic
+It does NOT guarantee program correctness
+It can be bypassed in dynamic code (Python flexibility)
+It only works if you use type hints
+
+Example (type checker OK, logic wrong):
+
+def add(a: int, b: int) -> int:
+    return a - b
+
+🪝 4. Git Hooks System (e.g. pre-commit, Husky)
+🧠 What it does
+
+A git hook system automates running tools before or after Git actions.
+
+Most commonly:
+👉 before commit
+
+✅ What it CAN do
+Run formatter automatically before commit
+Run linter before code is saved
+Block bad code from being committed
+Enforce team rules
+Automate checks consistently
+
+Example flow:
+
+git commit
+→ pre-commit runs Black + Ruff + MyPy
+→ if pass → commit allowed
+→ if fail → commit blocked
+❌ What it CANNOT do
+It does NOT improve your code itself
+It does NOT detect new kinds of errors
+It does NOT run at runtime (only during Git actions)
+It can be bypassed with --no-verify
+
+
+🔥 Key insight
+
+Each tool answers a different question:
+| Tool         | Question it answers                           |
+| ------------ | --------------------------------------------- |
+| Formatter    | “Does this look consistent?”                  |
+| Linter       | “Is this suspicious or wrong?”                |
+| Type Checker | “Are types used correctly?”                   |
+| Git Hooks    | “Should this code even be allowed to commit?” |
+
+
+

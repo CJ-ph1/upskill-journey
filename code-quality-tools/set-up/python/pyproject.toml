@@ -1,0 +1,40 @@
+[project]
+name = "code-quality-mock-python"
+version = "0.0.1"
+description = "Mock project demonstrating Black + Ruff + MyPy + pre-commit"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+]
+
+# ── Formatter: Black ─────────────────────────────────────────────────────────
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+# ── Linter: Ruff ─────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# E, F = pyflakes/pycodestyle (defaults)
+# I    = isort (import sorting)
+# B    = bugbear (likely bugs)
+# UP   = pyupgrade (modernize syntax)
+select = ["E", "F", "I", "B", "UP"]
+ignore = []
+
+# ── Type checker: MyPy ───────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+warn_return_any = true
+ignore_missing_imports = true
+files = ["src"]
