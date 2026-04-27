@@ -23,17 +23,30 @@ This is a real, runnable Python project. It contains one intentionally messy fil
 From inside `set-up/python/`:
 
 ```bash
-# 1. Create and activate a virtual env (Windows PowerShell shown; use bash on macOS/Linux)
+# 1. Create the virtual env
 python -m venv .venv
-.venv\Scripts\Activate.ps1
 
-# 2. Install the four tools
+# 2. Activate it — pick the line for YOUR shell:
+#
+#    PowerShell:        .venv\Scripts\Activate.ps1
+#    CMD:               .venv\Scripts\activate.bat
+#    Git Bash / WSL:    source .venv/Scripts/activate
+#    macOS / Linux:     source .venv/bin/activate
+#
+# If PowerShell rejects Activate.ps1 with "running scripts is disabled
+# on this system", run this ONCE (per user, persistent):
+#    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Then retry Activate.ps1.
+#
+# After activation succeeds, your prompt should start with (.venv).
+
+# 3. Install the four tools
 pip install -e ".[dev]"
 
-# 3. Initialize a git repo here so hooks have somewhere to live
+# 4. Initialize a git repo here so hooks have somewhere to live
 git init
 
-# 4. Install the pre-commit hooks into .git/hooks/
+# 5. Install the pre-commit hooks into .git/hooks/
 pre-commit install
 ```
 
