@@ -54,6 +54,28 @@ If the `LAST REVIEWED` date on a doc is older than 6 months at the time of an ed
 - Verify config syntax matches the current tool version
 - Update the date stamp
 
+## Learning checklist
+
+This checklist defines what "100% learned" means for this topic. The percentage shown in `../README.md` is computed as `checked / total`. Update boxes as you actually learn, read, or practice each item.
+
+**Concepts (8 items)**
+- [x] Know the 4 categories and the question each one answers (formatter / linter / type checker / git hooks)
+- [x] Know the chosen tool per language for each category (Black, Prettier, Ruff, ESLint, MyPy, TypeScript, pre-commit, Husky)
+- [ ] Read and understand `formatter/python-formatter.md` (Black)
+- [ ] Read and understand `formatter/javascript-formatter.md` (Prettier)
+- [ ] Read and understand `linter/python-linter.md` (Ruff)
+- [ ] Read and understand `linter/javascript-linter.md` (ESLint)
+- [ ] Read and understand `type-checker/python-type-checker.md` (MyPy)
+- [ ] Read and understand `type-checker/javascript-type-checker.md` (TypeScript)
+
+**Hands-on (4 items)**
+- [ ] Run `set-up/python/` mock end-to-end and watch pre-commit fire all four tools
+- [ ] Run `set-up/javascript/` mock end-to-end and watch Husky fire all four tools
+- [ ] Wire Black + Ruff + MyPy + pre-commit into a real personal Python project
+- [ ] Wire Prettier + ESLint + tsc + Husky + lint-staged into a real personal JS/TS project
+
+> The journey-level scanner reads only `- [ ]` and `- [x]` lines under "## Learning checklist" to compute the percentage. Don't rename this heading.
+
 ## Mock projects
 
 `set-up/python/` and `set-up/javascript/` are runnable projects. Their value is that one `git commit` triggers the full pipeline (formatter → linter → type checker). Do not break this property:
