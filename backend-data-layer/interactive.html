@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backend Data Layer — Interactive Playground</title>
+<style>
+:root{--bg:#0f1117;--s1:#1a1d27;--s2:#232733;--bdr:#2e3345;--txt:#e2e8f0;--dim:#8892a8;--accent:#6c63ff;--green:#51cf66;--red:#ff6b6b;--orange:#ff9f43;--cyan:#22d3ee;--blue:#4facfe;--pink:#ff6b9d;--yellow:#ffd43b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;}
+.hero{text-align:center;padding:50px 20px 30px;border-bottom:1px solid var(--bdr);}
+.hero h1{font-size:2.4em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--dim);font-size:1.05em;margin-top:6px;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+.topbar button{background:var(--s1);border:1px solid var(--bdr);color:var(--dim);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.82em;font-weight:600;transition:.2s;}
+.topbar button:hover,.topbar button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.container{max-width:1050px;margin:0 auto;padding:24px 16px;}
+.flow-section{margin-bottom:50px;}
+.flow-header{display:flex;align-items:center;gap:14px;margin-bottom:6px;padding-bottom:10px;border-bottom:2px solid var(--bdr);}
+.flow-num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1em;color:#fff;flex-shrink:0;}
+.flow-header h2{font-size:1.5em;font-weight:700;}
+.flow-header p{font-size:.88em;color:var(--dim);}
+.flow-map{background:var(--s1);border:1px solid var(--bdr);border-radius:12px;padding:18px 22px;margin:14px 0 20px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;}
+.fm-node{padding:8px 14px;border-radius:8px;font-size:.82em;font-weight:700;cursor:pointer;transition:.2s;border:1px solid var(--bdr);background:var(--s2);}
+.fm-node:hover{transform:translateY(-2px);border-color:var(--accent);}
+.fm-node.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.fm-arrow{color:var(--dim);font-size:1.1em;}
+.lab{margin-bottom:20px;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;background:var(--s1);}
+.lab-head{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.lab-head:hover{background:var(--s2);}
+.lab-tag{padding:3px 10px;border-radius:6px;font-size:.72em;font-weight:700;flex-shrink:0;}
+.lab-head h3{font-size:1.05em;flex:1;}
+.lab-head .arrow{color:var(--dim);font-size:1em;transition:.3s;}
+.lab.open .arrow{transform:rotate(180deg);}
+.lab-body{display:none;padding:20px;}
+.lab.open .lab-body{display:block;}
+.lab-intro{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:.9em;color:var(--dim);line-height:1.7;}
+.lab-intro strong{color:var(--txt);}
+.lab-intro code{background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.88em;color:var(--cyan);}
+.sandbox{background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:18px;margin-bottom:14px;}
+.sandbox h4{font-size:.95em;margin-bottom:10px;color:var(--accent);}
+.sandbox h5{font-size:.85em;margin:10px 0 6px;color:var(--orange);}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:10px;}
+.col{flex:1;min-width:200px;}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:9px 12px;border-radius:8px;font-family:inherit;font-size:.88em;outline:none;transition:.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:80px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.82em;line-height:1.55;overflow:hidden;}
+.btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.85em;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn:active{transform:scale(.96);}
+.btn-p{background:var(--accent);color:#fff;}.btn-p:hover{background:#5a52e0;}
+.btn-g{background:var(--green);color:#111;}.btn-g:hover{background:#43b556;}
+.btn-r{background:var(--red);color:#111;}.btn-r:hover{background:#e05555;}
+.btn-o{background:var(--orange);color:#111;}.btn-o:hover{background:#e88c30;}
+.btn-c{background:var(--cyan);color:#111;}
+.btn-sm{padding:5px 12px;font-size:.8em;}
+.output{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-top:8px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.8em;white-space:pre-wrap;word-break:break-word;min-height:36px;}
+.output .ok{color:var(--green);}.output .err{color:var(--red);}.output .warn{color:var(--orange);}.output .info{color:var(--cyan);}.output .dim{color:var(--dim);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.73em;font-weight:700;}
+.badge-ok{background:rgba(81,207,102,.15);color:var(--green);border:1px solid rgba(81,207,102,.3);}
+.badge-err{background:rgba(255,107,107,.15);color:var(--red);border:1px solid rgba(255,107,107,.3);}
+.badge-warn{background:rgba(255,159,67,.15);color:var(--orange);border:1px solid rgba(255,159,67,.3);}
+.badge-info{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.3);}
+.steps{display:flex;gap:3px;margin-bottom:14px;}.step{flex:1;height:5px;border-radius:3px;background:var(--s2);transition:.3s;}.step.done{background:var(--green);}.step.active{background:var(--accent);}.step.fail{background:var(--red);}
+.why-box,.whatif-box,.analogy-box{border-radius:10px;padding:14px 18px;margin:12px 0;font-size:.88em;line-height:1.7;cursor:pointer;position:relative;}
+.why-box{background:rgba(108,99,255,.07);border:1px solid rgba(108,99,255,.22);}
+.whatif-box{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.22);}
+.analogy-box{background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.22);}
+.box-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.why-box .box-title{color:var(--accent);}.whatif-box .box-title{color:var(--red);}.analogy-box .box-title{color:#00d4aa;}
+.box-body{display:none;color:var(--txt);}.box-body.show{display:block;}
+.box-body ul{padding-left:18px;margin:6px 0;}.box-body li{margin-bottom:4px;}
+.box-body strong{color:var(--txt);}.box-body code{background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.88em;color:var(--cyan);}
+.box-toggle{position:absolute;right:14px;top:14px;color:var(--dim);font-size:.78em;}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;}
+.compare-card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px;}
+.compare-card h5{font-size:.95em;margin-bottom:8px;color:var(--accent);}
+.compare-card .q{font-size:.82em;color:var(--dim);margin-bottom:10px;font-style:italic;}
+.compare-card ul{padding-left:18px;font-size:.82em;}
+.compare-card li{margin-bottom:4px;}
+table.db{width:100%;border-collapse:collapse;font-size:.83em;margin:8px 0;}
+table.db th{background:var(--s2);padding:7px 10px;text-align:left;border:1px solid var(--bdr);color:var(--dim);font-weight:700;}
+table.db td{padding:7px 10px;border:1px solid var(--bdr);}
+table.db tr.hl td{background:rgba(108,99,255,.08);}
+.doc{background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.78em;color:var(--cyan);white-space:pre-wrap;}
+.doc.match{border-color:var(--accent);background:rgba(108,99,255,.08);}
+.pool{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;}
+.pool-conn{width:42px;height:42px;border-radius:8px;border:1px solid var(--bdr);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.7em;font-weight:700;color:var(--dim);transition:.25s;}
+.pool-conn.busy{background:var(--accent);color:#fff;border-color:var(--accent);}
+.pool-conn.queued{background:rgba(255,159,67,.2);color:var(--orange);border-color:var(--orange);border-style:dashed;}
+.timeline{position:relative;padding-left:30px;margin:10px 0;}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:var(--bdr);}
+.tl-item{position:relative;margin-bottom:10px;padding:10px 14px;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;font-size:.86em;}
+.tl-item::before{content:'';position:absolute;left:-24px;top:14px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bdr);background:var(--bg);}
+.tl-item.applied::before{background:var(--green);border-color:var(--green);}
+.tl-item.head{border-color:var(--accent);}
+.tl-item.head::after{content:'HEAD';position:absolute;right:14px;top:8px;font-size:.65em;font-weight:800;color:var(--accent);background:rgba(108,99,255,.15);padding:2px 8px;border-radius:10px;}
+.balance-row{display:flex;gap:12px;align-items:center;padding:10px;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;margin-bottom:6px;}
+.balance-row .name{font-weight:700;width:80px;}
+.balance-row .amt{font-family:'Cascadia Code',monospace;font-size:1.05em;color:var(--green);}
+.balance-row .amt.neg{color:var(--red);}
+.balance-row .delta{font-size:.78em;color:var(--dim);}
+.cache-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+.cache-box{background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:12px;}
+.cache-box h5{font-size:.85em;color:var(--accent);margin-bottom:8px;}
+.cache-entry{font-family:'Cascadia Code',monospace;font-size:.78em;color:var(--cyan);padding:4px 0;border-bottom:1px dashed var(--bdr);}
+.cache-stat{display:flex;justify-content:space-between;font-size:.82em;padding:4px 0;}
+.cache-stat .v{font-weight:700;}
+@media(max-width:600px){.row{flex-direction:column;}.col{min-width:100%;}.flow-map{flex-direction:column;align-items:stretch;}.cache-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>Backend Data Layer Playground</h1>
+  <p>From a request to a row and back. Touch each layer. Watch how data really moves. — Python &amp; JS/TS.</p>
+</div>
+<div class="topbar" id="nav"></div>
+<div class="container" id="main">
+
+<!-- ====================================================================
+     FLOW 1: DATABASE CHOICE
+     ==================================================================== -->
+<div class="flow-section" id="flow-database">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--cyan);">1</div>
+    <div><h2>Database Choice</h2><p>"Where do the rows live?" — SQL vs NoSQL, schemas, and why indexes matter.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Shape of data</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Read/write pattern</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Consistency need</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Pick storage</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Index where you query</span>
+  </div>
+
+  <!-- 1A: SQL -->
+  <div class="lab open" id="lab-sql" data-title="SQL (Postgres)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(34,211,238,.15);color:var(--cyan);">SQL</span><h3>Relational — Rows, Columns, Indexes (Postgres)</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">A relational database stores rows in fixed-shape tables. <strong>Schema is enforced</strong> at write time: every row of <code>students</code> has the same columns, with the same types. SQL is the common query language. Postgres is the default pick for almost any new app — strong consistency, rich types (JSON, arrays, geo), and a great ecosystem.</div>
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Analogy: A spreadsheet on steroids <span class="box-toggle">click</span></div><div class="box-body"><p>Like a spreadsheet — every row has the same columns, types are enforced. Unlike a spreadsheet — billions of rows, transactions, indexes, and many users editing at once without stepping on each other.</p></div></div>
+      <div class="sandbox">
+        <h4>students table — query it</h4>
+        <table class="db" id="sql-table"><thead><tr><th>id</th><th>name</th><th>year</th><th>gpa</th></tr></thead><tbody id="sql-tbody"></tbody></table>
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Pick a query</label>
+            <select id="sql-q">
+              <option value="all">SELECT * FROM students</option>
+              <option value="byyear">SELECT * FROM students WHERE year = 3</option>
+              <option value="bygpa" selected>SELECT * FROM students WHERE gpa >= 3.5 ORDER BY gpa DESC</option>
+              <option value="count">SELECT year, COUNT(*) FROM students GROUP BY year</option>
+            </select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Index on <code>year</code>?</label>
+            <select id="sql-idx">
+              <option value="no">No index — full scan</option>
+              <option value="yes" selected>CREATE INDEX idx_year ON students(year)</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runSql()">EXPLAIN ANALYZE (read)</button></div>
+        </div>
+        <h5>Read result</h5>
+        <div class="output" id="sql-out"><span class="dim">Pick a query and click EXPLAIN ANALYZE.</span></div>
+
+        <h5 style="margin-top:18px;">Write side — feel the cost of indexes</h5>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">How many indexes does this table carry?</label>
+            <select id="sql-nidx">
+              <option value="0">0 — none (just the primary key)</option>
+              <option value="1" selected>1 — idx_year only</option>
+              <option value="3">3 — idx_year, idx_gpa, idx_name</option>
+              <option value="5">5 — full coverage (every common filter)</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-o" onclick="runSqlInsert()">INSERT 1000 rows</button></div>
+        </div>
+        <div class="output" id="sql-write-out"><span class="dim">Try the same INSERT with 0, 1, 3, and 5 indexes — watch the time grow.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">The trade-off: faster reads, slower writes <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>An index is a second copy of the data, sorted.</strong> Reads use the sorted copy to jump straight to matching rows.</li><li><strong>Every INSERT, UPDATE, and DELETE has to keep that copy in sync.</strong> One extra B-tree write per index, per row touched.</li><li><strong>Concrete cost:</strong> ~30–80% slower writes per index. With 5 indexes a write-heavy table can be 4–5× slower than the same table with none.</li><li><strong>Storage cost too:</strong> indexes take disk + memory. A 100GB table with five indexes can use 200–300GB total.</li><li><strong>Rule of thumb:</strong> index columns you filter or join on in hot paths. Skip columns that change a lot, have low cardinality (e.g. a 3-value <code>status</code>), or are queried only by background jobs.</li><li><strong>Read-heavy table?</strong> Index aggressively. <strong>Write-heavy table?</strong> Index sparingly — the savings on reads stop paying for the cost on writes.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What if you skip indexes? <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>10 rows:</strong> nobody cares.</li><li><strong>10 million rows:</strong> a missing index turns a 2 ms query into a 2 second query, your DB CPU spikes, and connections back up.</li><li>Production incidents are usually missing or wrong indexes — not bad code.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 1B: NoSQL -->
+  <div class="lab" id="lab-nosql" data-title="NoSQL (MongoDB)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(34,211,238,.15);color:var(--cyan);">NoSQL</span><h3>Document Store — Flexible Schema (MongoDB)</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">A document store keeps records as JSON-like documents. <strong>The schema isn't enforced at write time</strong> — two documents in the same collection can look very different. Queries are nested filters, not joins. Good when shape varies a lot, when you write many self-contained records, or when you intentionally denormalize for read speed.</div>
+      <div class="sandbox">
+        <h4>users collection — try a find()</h4>
+        <div id="mongo-docs"></div>
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">find filter</label>
+            <select id="mongo-q">
+              <option value="all">{} — all documents</option>
+              <option value="active" selected>{ active: true }</option>
+              <option value="pro">{ "plan.tier": "pro" }</option>
+              <option value="hasphone">{ phone: { $exists: true } }</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runMongo()">db.users.find(filter)</button></div>
+        </div>
+        <h5>Matched documents</h5>
+        <div class="output" id="mongo-out"><span class="dim">Pick a filter and click find().</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">When NoSQL pays off <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Variable shape:</strong> CMS content, IoT events, user-defined fields — fewer migrations.</li><li><strong>Read-heavy with denormalization:</strong> embed sub-documents to avoid joins.</li><li><strong>Horizontal scale:</strong> sharding is built in.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">When NoSQL hurts you <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Relations:</strong> "user has many orders, each with many items" — joins are clunky in Mongo. Postgres makes you smile.</li><li><strong>Strict consistency:</strong> banks, billing, inventory. SQL transactions are the right tool.</li><li><strong>Schema drift:</strong> "no schema" really means "schema in your application code". When that drifts, you're debugging optional fields forever.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 1C: Pick which? -->
+  <div class="lab" id="lab-pick" data-title="SQL or NoSQL?">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,107,157,.15);color:var(--pink);">DECISION</span><h3>Picking SQL or NoSQL — A 30-second Test</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Most new apps should start with Postgres. Reach for NoSQL when you have a specific reason. Use this quick test to see which the workload prefers.</div>
+      <div class="sandbox">
+        <h4>Describe your workload</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Shape of data</label>
+            <select id="pk-shape"><option value="fixed" selected>Fixed (users, orders, invoices)</option><option value="varied">Varied (CMS docs, IoT events)</option></select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Relations between things</label>
+            <select id="pk-rel"><option value="many" selected>Many (users → orders → items)</option><option value="few">Few (mostly self-contained)</option></select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Consistency need</label>
+            <select id="pk-cons"><option value="strict" selected>Strict (money, inventory)</option><option value="eventual">Eventual is fine</option></select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runPick()">Recommend</button></div>
+        </div>
+        <h5>Recommendation</h5>
+        <div class="output" id="pk-out"><span class="dim">Set the three knobs and click Recommend.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 2: ORM / QUERY LAYER
+     ==================================================================== -->
+<div class="flow-section" id="flow-orm">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--orange);">2</div>
+    <div><h2>ORM / Query Layer</h2><p>"How does my code talk to the database?" — and the N+1 query trap.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">App code</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">ORM model</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Generated SQL</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">DB</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Hydrated objects</span>
+  </div>
+
+  <!-- 2A: SQLAlchemy -->
+  <div class="lab open" id="lab-sqlalchemy" data-title="SQLAlchemy (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,159,67,.15);color:var(--orange);">PYTHON</span><h3>SQLAlchemy — and the N+1 Trap</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">An <strong>ORM</strong> (Object-Relational Mapper) maps your Python classes to DB tables. SQLAlchemy is the standard. It's amazing — until you hit <strong>N+1 queries</strong>: code that looks like one operation actually fires N+1 SQL statements. The fix is <code>joinedload</code> (or <code>selectinload</code>): tell the ORM to fetch the related rows in the same trip.</div>
+      <div class="sandbox">
+        <h4>Load 5 students with their courses</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Loading strategy</label>
+            <select id="sa-mode">
+              <option value="lazy" selected>Lazy (default) — fires N+1</option>
+              <option value="eager">Eager (joinedload) — single JOIN</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runSqlAlchemy()">session.execute(...)</button></div>
+        </div>
+        <h5>Generated SQL</h5>
+        <div class="output" id="sa-sql"><span class="dim">Pick a mode and click execute.</span></div>
+        <h5>Stats</h5>
+        <div class="output" id="sa-stats"></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why N+1 is the most common backend bug <span class="box-toggle">click</span></div><div class="box-body"><ul><li>The code <em>reads</em> like a single line: <code>for s in students: print(s.courses)</code>.</li><li>Behind the scenes the ORM lazy-loads <code>s.courses</code> for each student — that's N extra queries.</li><li>Fine with 5 students. With 5,000, that's 5,001 round trips. Page takes 30 seconds.</li><li>Fix: <code>select(Student).options(joinedload(Student.courses))</code>.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">How to spot N+1 in production <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Turn on SQL logging in dev (<code>echo=True</code>). Read the log of a single page load.</li><li>If you see the same <code>SELECT ... WHERE ... = ?</code> repeated dozens of times, you have N+1.</li><li>APMs (Datadog, NewRelic, Sentry) flag this directly.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 2B: Prisma -->
+  <div class="lab" id="lab-prisma" data-title="Prisma (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,159,67,.15);color:var(--orange);">JS / TS</span><h3>Prisma — Same Trap, Same Fix</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">In the JS/TS world, <strong>Prisma</strong> is the most popular ORM. The N+1 pattern is the same — you call <code>findMany()</code>, then access a relation per row, and Prisma quietly fires N follow-up queries. The fix in Prisma is <code>include</code>: declare the relation up front and Prisma fetches everything in batched queries.</div>
+      <div class="sandbox">
+        <h4>Load 5 students with their courses</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Loading strategy</label>
+            <select id="pr-mode">
+              <option value="lazy" selected>No include — relation is lazy</option>
+              <option value="eager">include: { courses: true }</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runPrisma()">prisma.student.findMany(...)</button></div>
+        </div>
+        <h5>Generated SQL</h5>
+        <div class="output" id="pr-sql"><span class="dim">Pick a mode and click findMany.</span></div>
+        <h5>Stats</h5>
+        <div class="output" id="pr-stats"></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Prisma's two-query trick <span class="box-toggle">click</span></div><div class="box-body"><ul><li>With <code>include</code>, Prisma fires <strong>two</strong> queries: one for students, one for the courses of those students (using <code>WHERE student_id IN (...)</code>).</li><li>It then assembles the JSON in JS. Two queries instead of N+1, no risky cartesian JOIN.</li><li>This is similar to SQLAlchemy's <code>selectinload</code>.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 3: MIGRATIONS
+     ==================================================================== -->
+<div class="flow-section" id="flow-migrations">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--accent);">3</div>
+    <div><h2>Migrations &amp; Schema Evolution</h2><p>"How does the schema change without losing data?" — versioned, reversible, deployed.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Edit model</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Generate migration</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Review SQL</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Apply (upgrade)</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Roll back if needed</span>
+  </div>
+
+  <!-- 3A: Alembic -->
+  <div class="lab open" id="lab-alembic" data-title="Alembic (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(108,99,255,.15);color:var(--accent);">PYTHON</span><h3>Alembic — Time-travel for your Postgres Schema</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro"><strong>Alembic</strong> is SQLAlchemy's migration tool. Each schema change becomes a small Python file (a "revision") with <code>upgrade()</code> and <code>downgrade()</code> functions. The DB stores which revision is currently applied (<code>alembic_version</code> table). You can move forward or backward step by step.</div>
+      <div class="sandbox">
+        <h4>Walk a schema through revisions</h4>
+        <div class="timeline" id="alembic-tl"></div>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="alAddRev()">alembic revision -m "..."</button>
+          <button class="btn btn-g" onclick="alUpgrade()">alembic upgrade head</button>
+          <button class="btn btn-r" onclick="alDowngrade()">alembic downgrade -1</button>
+          <button class="btn btn-sm btn-o" onclick="alReset()">Reset</button>
+        </div>
+        <h5>Console</h5>
+        <div class="output" id="al-out"><span class="dim">Click a button — current state shown above.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why migrations are checked into git <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Migrations are <strong>code</strong>. They are reviewed in PRs like any other change.</li><li>CI applies migrations to a fresh DB to verify they actually run.</li><li>Every environment (dev, staging, prod) ends up at the same revision the same way.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Things migrations cannot save you from <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>NOT NULL on a populated table</strong> without a default — fails on existing rows.</li><li><strong>Renaming a column</strong> while old code is still reading the old name — old pods crash.</li><li><strong>Long-running ALTERs</strong> on huge tables — locks everything. Use safe-migration tools (pg_repack, gh-ost) or the expand-then-contract pattern.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 3B: Prisma Migrate -->
+  <div class="lab" id="lab-prisma-migrate" data-title="Prisma Migrate (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(108,99,255,.15);color:var(--accent);">JS / TS</span><h3>Prisma Migrate — Schema-driven Diff</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Prisma takes a different angle: <strong>your schema lives in <code>schema.prisma</code></strong>. You edit that file, then run <code>prisma migrate dev --name "add_email"</code>. Prisma diffs your edited schema against the DB and generates a SQL migration for you — and applies it.</div>
+      <div class="sandbox">
+        <h4>schema.prisma</h4>
+        <textarea id="prm-schema">model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+}</textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="prmDiff()">prisma migrate dev --name auto</button>
+          <button class="btn btn-sm btn-o" onclick="prmReset()">Reset</button>
+        </div>
+        <h5>Generated SQL migration</h5>
+        <div class="output" id="prm-out"><span class="dim">Edit the schema (try adding <code>email String @unique</code>) and click migrate.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Schema-first vs migration-first <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Alembic (migration-first):</strong> you write the migration; it's the source of truth.</li><li><strong>Prisma (schema-first):</strong> you write the schema; the migration is generated by diff.</li><li>Both work. Schema-first is faster on small teams; migration-first gives you finer control on big teams with painful production tables.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 4: TRANSACTIONS / CONNECTIONS / CACHING
+     ==================================================================== -->
+<div class="flow-section" id="flow-runtime">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--green);color:#111;">4</div>
+    <div><h2>Transactions, Connections &amp; Caching</h2><p>"How does the data layer behave under load?" — three runtime concerns that ship with every backend.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Request</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Get connection (pool)</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Cache check</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">BEGIN</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">DB write</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">COMMIT or ROLLBACK</span>
+  </div>
+
+  <!-- 4A: Transactions -->
+  <div class="lab open" id="lab-txn" data-title="Transactions">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(81,207,102,.15);color:var(--green);">ACID</span><h3>Transactions — Bank Transfer Demo</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">A <strong>transaction</strong> wraps multiple operations in an "all-or-nothing" envelope. Either every step commits or none of them do. The classic example: transfer $100 from A to B. Without a transaction, a crash between the debit and the credit means the money disappears. With a transaction, the DB rolls back to the state before BEGIN — as if nothing happened.</div>
+      <div class="sandbox">
+        <h4>Transfer $100 from Alice → Bob</h4>
+        <div class="balance-row"><div class="name">Alice</div><div class="amt" id="bal-a">$500</div><div class="delta" id="d-a"></div></div>
+        <div class="balance-row"><div class="name">Bob</div><div class="amt" id="bal-b">$300</div><div class="delta" id="d-b"></div></div>
+        <div class="row" style="margin-top:10px;">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Use a transaction?</label>
+            <select id="tx-mode">
+              <option value="no">No — two separate statements</option>
+              <option value="yes" selected>Yes — wrap in BEGIN / COMMIT</option>
+            </select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Crash mid-transfer?</label>
+            <select id="tx-crash">
+              <option value="no" selected>No — happy path</option>
+              <option value="yes">Yes — server dies after debit, before credit</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;">
+            <button class="btn btn-p" onclick="runTxn()">Execute transfer</button>
+            <button class="btn btn-sm btn-o" onclick="resetTxn()">Reset balances</button>
+          </div>
+        </div>
+        <h5>Console</h5>
+        <div class="output" id="tx-out"><span class="dim">Pick a scenario and click Execute.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">ACID in one line each <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>A — Atomicity:</strong> all steps commit, or none do.</li><li><strong>C — Consistency:</strong> the DB is left in a valid state (constraints honored).</li><li><strong>I — Isolation:</strong> concurrent transactions don't see each other's half-done work.</li><li><strong>D — Durability:</strong> once COMMIT returns, the change survives a crash.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Where developers forget transactions <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Multi-row writes</strong> in the same logical operation (create order + decrement stock).</li><li><strong>External calls inside transactions</strong> — long HTTP calls hold a DB connection. Bad. Pull the call out, or use the outbox pattern.</li><li><strong>"It looked atomic in code"</strong> — Python's <code>session.add()</code> followed by <code>session.commit()</code> is one transaction; two separate <code>commit()</code> calls are two.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 4B: Connection pool -->
+  <div class="lab" id="lab-pool" data-title="Connection Pooling">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(81,207,102,.15);color:var(--green);">RUNTIME</span><h3>Connection Pooling — Why It's Not Optional</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Opening a fresh DB connection per request is expensive (TCP handshake + TLS + auth). A <strong>connection pool</strong> keeps a small set of long-lived connections and hands them out. When the pool is full, new requests wait in a queue.</div>
+      <div class="sandbox">
+        <h4>Pool size = 5</h4>
+        <div class="pool" id="pool-vis"></div>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="poolHit(1)">+1 request</button>
+          <button class="btn btn-g" onclick="poolHit(8)">+8 requests (burst)</button>
+          <button class="btn btn-r" onclick="poolRelease()">release oldest</button>
+          <button class="btn btn-sm btn-o" onclick="poolReset()">Reset</button>
+        </div>
+        <h5>Pool state</h5>
+        <div class="output" id="pool-out"><span class="dim">Send some requests and watch the pool.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Sizing the pool <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Postgres default max_connections is 100.</strong> With 10 app instances × pool_size 20 = 200 → connection refused.</li><li>Rule of thumb: <code>pool_size ≈ cores × 2</code> per instance, leave room for migrations &amp; admin tools.</li><li>Use <strong>PgBouncer</strong> in front of Postgres for high-concurrency setups — it multiplexes connections.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What if you forget to release a connection? <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Pool fills up, new requests queue, then time out.</li><li>Common cause: an exception inside a <code>with session.begin()</code> that wasn't handled — the framework should release, but only if you used the framework's helper.</li><li>Symptom in production: 502s under modest load with the DB barely doing any work. The bottleneck is the pool, not the DB.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 4C: Cache -->
+  <div class="lab" id="lab-cache" data-title="Caching (Redis)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(81,207,102,.15);color:var(--green);">RUNTIME</span><h3>Caching — Read-through with Redis</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">A cache (typically <strong>Redis</strong>) sits in front of the DB. The "read-through" pattern: check cache → on miss, query DB → store result in cache → return. The next read is a cheap memory hit. Each entry has a TTL so it eventually refreshes.</div>
+      <div class="sandbox">
+        <h4>GET /user/&lt;id&gt; — read-through with TTL 60s</h4>
+        <div class="cache-grid">
+          <div class="cache-box">
+            <h5>Redis cache</h5>
+            <div id="cache-list"><span class="dim" style="font-size:.78em;">empty</span></div>
+          </div>
+          <div class="cache-box">
+            <h5>Stats</h5>
+            <div class="cache-stat"><span>cache hits</span><span class="v" id="c-hits">0</span></div>
+            <div class="cache-stat"><span>cache misses</span><span class="v" id="c-miss">0</span></div>
+            <div class="cache-stat"><span>DB reads</span><span class="v" id="c-db">0</span></div>
+            <div class="cache-stat"><span>last latency</span><span class="v" id="c-lat">—</span></div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">user id</label>
+            <select id="c-id"><option>1</option><option>2</option><option>3</option><option>42</option></select>
+          </div>
+          <div class="col" style="align-self:flex-end;">
+            <button class="btn btn-p" onclick="cacheGet()">GET /user/id</button>
+            <button class="btn btn-r" onclick="cacheEvict()">FLUSHDB</button>
+          </div>
+        </div>
+        <h5>Console</h5>
+        <div class="output" id="c-out"><span class="dim">Click GET — first call misses, second call hits.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Cache invalidation — the hard part <span class="box-toggle">click</span></div><div class="box-body"><ul><li>"There are two hard things in computer science: cache invalidation, naming, and off-by-one errors."</li><li><strong>TTL</strong> is the simplest answer — entries expire on their own. Stale data is bounded.</li><li><strong>Write-through:</strong> on every write, also update the cache (or delete it). More work, fresher data.</li><li><strong>Patterns to avoid:</strong> caching things that change often, caching per-user data with no key for the user, caching DB writes (you'll get phantom rows).</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">When a cache becomes a liability <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Stampede:</strong> popular key expires, 10,000 concurrent requests all miss at once and pound the DB. Use a single-flight lock or randomize TTL.</li><li><strong>Stale reads after a write:</strong> user updates profile, sees the old version because the cache wasn't busted.</li><li>If the data is small and cheap to fetch from Postgres, you might not need a cache at all. Measure first.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 5: BIG PICTURE
+     ==================================================================== -->
+<div class="flow-section" id="flow-bigpicture">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--pink);">5</div>
+    <div><h2>The Big Picture</h2><p>How a single request flows through every piece you just touched.</p></div>
+  </div>
+
+  <div class="lab open" id="lab-pipeline" data-title="One request, all layers">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,107,157,.15);color:var(--pink);">REVIEW</span><h3>POST /students — Trace it through the data layer</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Watch a single request walk every concept above. The trace is identical in spirit for both stacks; the names of the tools change.</div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h5>Database choice</h5>
+          <div class="q">"Where do the rows live?"</div>
+          <ul><li>Postgres — relational</li><li>MongoDB — documents</li><li>Index where you query</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>ORM</h5>
+          <div class="q">"How does code talk to DB?"</div>
+          <ul><li>SQLAlchemy (Python)</li><li>Prisma (JS/TS)</li><li>Beware N+1</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>Migrations</h5>
+          <div class="q">"How does schema change?"</div>
+          <ul><li>Alembic (Python)</li><li>Prisma Migrate (JS/TS)</li><li>Versioned, reviewed in PRs</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>Runtime</h5>
+          <div class="q">"How does it behave under load?"</div>
+          <ul><li>Transactions = all-or-nothing</li><li>Pool = bounded connections</li><li>Cache = bounded staleness</li></ul>
+        </div>
+      </div>
+
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')" style="margin-top:18px;"><div class="box-title">Analogy: A restaurant kitchen <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Database</strong> = the pantry &amp; walk-in fridge. Holds everything.</li><li><strong>ORM</strong> = the line cook reading order tickets and grabbing ingredients.</li><li><strong>Migration</strong> = remodeling the kitchen between services without losing the food in the fridge.</li><li><strong>Transaction</strong> = "fire the burger and the fries together, or refire both" — all on one ticket.</li><li><strong>Connection pool</strong> = the fixed number of stoves. Tickets wait if all are in use.</li><li><strong>Cache</strong> = the warming tray. Fast to grab, but you can't keep food there forever.</li></ul></div></div>
+
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">One request, every layer <span class="box-toggle">click</span></div><div class="box-body"><pre style="background:var(--bg);padding:10px;border-radius:6px;font-size:.82em;color:var(--txt);margin:6px 0;">POST /students {name:"Ana", year:3}
+  → API handler
+  → check Redis cache for "student_count"   (cache: optional, runtime)
+  → acquire pooled DB connection            (pool: runtime)
+  → BEGIN                                   (txn: runtime)
+  → INSERT INTO students (name, year) ...   (ORM: SQLAlchemy / Prisma)
+  → INSERT INTO audit_log ...
+  → COMMIT
+  → release connection
+  → invalidate "student_count" cache
+  → return 201 with the new row</pre><p>Every concept in this playground shows up in those ten lines. That's the whole shape of a backend data layer.</p></div></div>
+
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">If you only learn one thing per layer <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>DB:</strong> index where you query.</li><li><strong>ORM:</strong> watch for N+1; eager-load relations you'll touch.</li><li><strong>Migrations:</strong> always provide a downgrade; never break the schema for old code that's still running.</li><li><strong>Transactions:</strong> wrap related writes; never call slow external APIs inside one.</li><li><strong>Pool:</strong> always release; size it for the DB, not for hope.</li><li><strong>Cache:</strong> set a TTL; assume invalidation will be wrong sometimes.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ============== AUTO-GROW ============== */
+function autoGrow(el){
+  if(!el)return;
+  el.style.height='auto';
+  el.style.height=(el.scrollHeight+4)+'px';
+}
+function fitAll(){document.querySelectorAll('textarea').forEach(autoGrow);}
+
+/* ============== TOPBAR / NAV ============== */
+(function(){
+  const n=document.getElementById('nav');
+  document.querySelectorAll('.flow-section').forEach(s=>{
+    const b=document.createElement('button');
+    b.textContent=s.querySelector('h2').textContent;
+    b.onclick=()=>s.scrollIntoView({behavior:'smooth',block:'start'});
+    n.appendChild(b);
+  });
+})();
+function toggleLab(h){
+  h.parentElement.classList.toggle('open');
+  setTimeout(()=>h.parentElement.querySelectorAll('textarea').forEach(autoGrow),0);
+}
+
+/* ============== HELPERS ============== */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setOut(id,html){document.getElementById(id).innerHTML=html;}
+
+/* ============== 1A: SQL ============== */
+const STUDENTS=[
+  {id:1,name:"Ana",year:1,gpa:3.8},
+  {id:2,name:"Bea",year:2,gpa:3.2},
+  {id:3,name:"Cleo",year:3,gpa:3.9},
+  {id:4,name:"Dani",year:3,gpa:2.8},
+  {id:5,name:"Eli",year:1,gpa:3.5},
+  {id:6,name:"Finn",year:4,gpa:3.7},
+  {id:7,name:"Gia",year:3,gpa:3.6},
+  {id:8,name:"Hugo",year:2,gpa:3.1},
+];
+function renderSqlTable(){
+  const t=document.getElementById('sql-tbody');
+  t.innerHTML=STUDENTS.map(s=>`<tr><td>${s.id}</td><td>${esc(s.name)}</td><td>${s.year}</td><td>${s.gpa.toFixed(2)}</td></tr>`).join('');
+}
+renderSqlTable();
+function runSql(){
+  const q=document.getElementById('sql-q').value;
+  const idx=document.getElementById('sql-idx').value==='yes';
+  let rows=STUDENTS.slice();
+  let plan='Seq Scan on students';
+  let scanned=STUDENTS.length;
+  let rendered='';
+  if(q==='all'){/* keep all */}
+  else if(q==='byyear'){
+    rows=rows.filter(r=>r.year===3);
+    if(idx){plan='Index Scan using idx_year on students  (cond: year = 3)';scanned=rows.length;}
+  }
+  else if(q==='bygpa'){
+    rows=rows.filter(r=>r.gpa>=3.5).sort((a,b)=>b.gpa-a.gpa);
+    plan='Seq Scan + Sort  (no index on gpa)';
+  }
+  else if(q==='count'){
+    const g={};rows.forEach(r=>{g[r.year]=(g[r.year]||0)+1;});
+    rendered=Object.keys(g).map(y=>`year=${y}  count=${g[y]}`).join('\n');
+    plan='Seq Scan + HashAggregate';
+  }
+  if(!rendered){
+    rendered=rows.length?rows.map(r=>`id=${r.id}  name=${r.name.padEnd(5)}  year=${r.year}  gpa=${r.gpa.toFixed(2)}`).join('\n'):'(0 rows)';
+  }
+  const cost=q==='byyear'&&idx?'0.15..1.20':(q==='all'?'0.00..1.10':'0.20..1.80');
+  const time=q==='byyear'&&idx?'0.087':(scanned*0.012).toFixed(3);
+  let out=`<span class="info">${plan}  (cost=${cost} rows=${rows.length})</span>\n<span class="dim">  Rows scanned: ${scanned} · Rows returned: ${rows.length} · Planning: 0.21ms · Execution: ${time}ms</span>\n\n`+esc(rendered);
+  if(q==='byyear'&&!idx){out+='\n\n<span class="warn">⚠ Without an index on year, Postgres reads every row to find year=3. Fine for 8 rows; brutal at 8M.</span>';}
+  if(q==='byyear'&&idx){out+='\n\n<span class="ok">✓ Index Scan jumps directly to matching rows. ~100× faster on big tables.</span>';}
+  setOut('sql-out',out);
+}
+function runSqlInsert(){
+  const n=parseInt(document.getElementById('sql-nidx').value,10);
+  const ROWS=1000;
+  // Baseline: ~50µs per row with no indexes (heap insert + WAL).
+  // Each additional index adds ~35µs per row on average (B-tree maintenance).
+  const baseUs=50, perIndexUs=35;
+  const totalMs=(ROWS*(baseUs+n*perIndexUs))/1000;
+  const baseMs=(ROWS*baseUs)/1000;
+  const overheadPct=n===0?0:Math.round((totalMs/baseMs-1)*100);
+  // Build a small bar chart of all four scenarios so the trade-off is visible at a glance.
+  const scenarios=[0,1,3,5];
+  const max=Math.max(...scenarios.map(k=>(ROWS*(baseUs+k*perIndexUs))/1000));
+  const bars=scenarios.map(k=>{
+    const ms=(ROWS*(baseUs+k*perIndexUs))/1000;
+    const w=Math.round((ms/max)*40);
+    const bar='█'.repeat(w)+'░'.repeat(40-w);
+    const cls=k===n?'ok':'dim';
+    const tag=k===n?' ← you':'';
+    return `<span class="${cls}">  ${k} idx │ ${bar} │ ${ms.toFixed(0).padStart(4)}ms${tag}</span>`;
+  }).join('\n');
+  let out=`<span class="info">$ INSERT INTO students (name, year, gpa) VALUES (...);   × ${ROWS}</span>\n`;
+  out+=`<span class="dim">  table currently has ${n} index${n!==1?'es':''}: ${n===0?'(none)':n===1?'idx_year':n===3?'idx_year, idx_gpa, idx_name':'idx_year, idx_gpa, idx_name, idx_id_year, idx_year_gpa'}</span>\n\n`;
+  out+=`<span class="${n===0?'ok':n>=3?'err':'warn'}">⏱  total: ${totalMs.toFixed(0)}ms  (${(baseUs+n*perIndexUs)}µs per row)</span>`;
+  if(n>0)out+=`\n<span class="${n>=3?'err':'warn'}">    ${overheadPct}% slower than the no-index baseline (${baseMs.toFixed(0)}ms)</span>`;
+  out+='\n\n<span class="dim">Comparison across index counts:</span>\n'+bars;
+  out+='\n\n<span class="dim">Why: each index is a B-tree. Every INSERT must walk and update each tree to record the new row\'s position. UPDATEs that change an indexed column also rewrite the index entry. DELETE marks the index entry dead. None of that work is free.</span>';
+  setOut('sql-write-out',out);
+}
+
+/* ============== 1B: NoSQL ============== */
+const USERS=[
+  {_id:"a1",name:"Ana",email:"ana@x.com",active:true,plan:{tier:"pro",seats:5}},
+  {_id:"b2",name:"Bea",email:"bea@x.com",active:false,plan:{tier:"free"}},
+  {_id:"c3",name:"Cleo",email:"cleo@x.com",active:true,plan:{tier:"pro",seats:1},phone:"+639170000001"},
+  {_id:"d4",name:"Dani",active:true},
+  {_id:"e5",name:"Eli",email:"eli@x.com",active:true,plan:{tier:"team",seats:20},phone:"+639170000002"},
+];
+function renderMongoDocs(matchIds){
+  const c=document.getElementById('mongo-docs');
+  c.innerHTML=USERS.map(u=>{
+    const isMatch=matchIds&&matchIds.has(u._id);
+    return `<div class="doc${isMatch?' match':''}">${esc(JSON.stringify(u,null,2))}</div>`;
+  }).join('');
+}
+renderMongoDocs();
+function runMongo(){
+  const q=document.getElementById('mongo-q').value;
+  let matched=USERS.slice();
+  if(q==='active')matched=matched.filter(u=>u.active===true);
+  if(q==='pro')matched=matched.filter(u=>u.plan&&u.plan.tier==='pro');
+  if(q==='hasphone')matched=matched.filter(u=>typeof u.phone!=='undefined');
+  const ids=new Set(matched.map(u=>u._id));
+  renderMongoDocs(ids);
+  const out=matched.length?matched.map(u=>esc(JSON.stringify(u))).join('\n'):'<span class="dim">(0 documents)</span>';
+  setOut('mongo-out',`<span class="info">→ ${matched.length} document${matched.length!==1?'s':''} matched</span>\n\n`+out);
+}
+
+/* ============== 1C: Pick which ============== */
+function runPick(){
+  const shape=document.getElementById('pk-shape').value;
+  const rel=document.getElementById('pk-rel').value;
+  const cons=document.getElementById('pk-cons').value;
+  let sql=0,nosql=0;
+  shape==='fixed'?sql++:nosql++;
+  rel==='many'?sql+=2:nosql++;
+  cons==='strict'?sql+=2:nosql++;
+  const pick=sql>=nosql?'Postgres (SQL)':'MongoDB (NoSQL)';
+  const reasons=[];
+  if(shape==='fixed')reasons.push('Fixed shape → schema enforcement is a feature, not a chore.');
+  else reasons.push('Variable shape → embracing flexibility avoids constant migrations.');
+  if(rel==='many')reasons.push('Many relations → JOINs in SQL beat client-side stitching.');
+  else reasons.push('Few relations → single-document reads stay fast.');
+  if(cons==='strict')reasons.push('Strict consistency → ACID transactions on a single relational DB.');
+  else reasons.push('Eventual consistency → fits sharded NoSQL.');
+  setOut('pk-out',`<span class="ok">→ Pick: ${pick}</span>\n<span class="dim">Score — SQL: ${sql} · NoSQL: ${nosql}</span>\n\n`+reasons.map(r=>`• ${r}`).join('\n'));
+}
+
+/* ============== 2A: SQLAlchemy ============== */
+function runSqlAlchemy(){
+  const mode=document.getElementById('sa-mode').value;
+  const N=5;
+  if(mode==='lazy'){
+    const sql=[`SELECT * FROM students LIMIT ${N};`];
+    for(let i=1;i<=N;i++){sql.push(`SELECT * FROM courses WHERE student_id = ${i};   <span class="dim">-- lazy load #${i}</span>`);}
+    setOut('sa-sql',sql.join('\n'));
+    setOut('sa-stats',`<span class="err">queries fired: ${N+1}</span>\n<span class="dim">round-trips × latency = ${(N+1)*8}ms (typical)</span>\n<span class="warn">⚠ This is the N+1 anti-pattern. Add joinedload(Student.courses).</span>`);
+  }else{
+    const sql=`SELECT s.*, c.*\nFROM students s\nLEFT JOIN courses c ON c.student_id = s.id\nLIMIT ${N};   <span class="dim">-- single round trip</span>`;
+    setOut('sa-sql',sql);
+    setOut('sa-stats',`<span class="ok">queries fired: 1</span>\n<span class="dim">round-trips × latency = 8ms</span>\n<span class="ok">✓ joinedload pulled both tables in one query.</span>`);
+  }
+}
+
+/* ============== 2B: Prisma ============== */
+function runPrisma(){
+  const mode=document.getElementById('pr-mode').value;
+  const N=5;
+  if(mode==='lazy'){
+    const sql=[`SELECT * FROM "Student" LIMIT ${N};`];
+    for(let i=1;i<=N;i++){sql.push(`SELECT * FROM "Course" WHERE "studentId" = ${i};   <span class="dim">-- relation accessed without include</span>`);}
+    setOut('pr-sql',sql.join('\n'));
+    setOut('pr-stats',`<span class="err">queries fired: ${N+1}</span>\n<span class="warn">⚠ N+1 — add include: { courses: true }.</span>`);
+  }else{
+    const sql=`SELECT * FROM "Student" LIMIT ${N};\nSELECT * FROM "Course" WHERE "studentId" IN (1,2,3,4,5);   <span class="dim">-- batched IN-list</span>`;
+    setOut('pr-sql',sql);
+    setOut('pr-stats',`<span class="ok">queries fired: 2</span>\n<span class="dim">Prisma fetches relations in one batched query, then assembles JSON in JS.</span>`);
+  }
+}
+
+/* ============== 3A: Alembic ============== */
+let AL_REVS=[
+  {id:'001_init',msg:'init schema',applied:true},
+  {id:'002_add_email',msg:'add email column',applied:true},
+];
+let AL_HEAD=1;
+function alRender(){
+  const tl=document.getElementById('alembic-tl');
+  tl.innerHTML=AL_REVS.map((r,i)=>{
+    const cls=[r.applied?'applied':'',i===AL_HEAD?'head':''].join(' ');
+    return `<div class="tl-item ${cls}"><div style="font-family:monospace;font-size:.82em;color:var(--cyan);">${r.id}</div><div>${esc(r.msg)}</div></div>`;
+  }).join('');
+}
+alRender();
+function alAddRev(){
+  const i=AL_REVS.length+1;
+  const id=String(i).padStart(3,'0')+'_change_'+i;
+  AL_REVS.push({id,msg:`auto-generated migration #${i}`,applied:false});
+  alRender();
+  setOut('al-out',`<span class="info">$ alembic revision -m "auto-generated migration #${i}"</span>\n  Generating ${id}.py ... done\n<span class="dim">  (not applied yet — run \`alembic upgrade head\`)</span>`);
+}
+function alUpgrade(){
+  const before=AL_HEAD;
+  for(let i=0;i<AL_REVS.length;i++){if(!AL_REVS[i].applied){AL_REVS[i].applied=true;AL_HEAD=i;}}
+  AL_HEAD=AL_REVS.length-1;
+  alRender();
+  setOut('al-out',`<span class="info">$ alembic upgrade head</span>\n  Running upgrade ${AL_REVS[before].id} → ${AL_REVS[AL_HEAD].id}\n<span class="ok">  ✓ HEAD now at ${AL_REVS[AL_HEAD].id}</span>`);
+}
+function alDowngrade(){
+  if(AL_HEAD<=0){setOut('al-out','<span class="err">Already at base — cannot downgrade further.</span>');return;}
+  const from=AL_REVS[AL_HEAD].id;
+  AL_REVS[AL_HEAD].applied=false;
+  AL_HEAD--;
+  alRender();
+  setOut('al-out',`<span class="info">$ alembic downgrade -1</span>\n  Running downgrade ${from} → ${AL_REVS[AL_HEAD].id}\n<span class="warn">  ⚠ HEAD now at ${AL_REVS[AL_HEAD].id} — schema rolled back one step</span>`);
+}
+function alReset(){
+  AL_REVS=[{id:'001_init',msg:'init schema',applied:true},{id:'002_add_email',msg:'add email column',applied:true}];
+  AL_HEAD=1;alRender();
+  setOut('al-out','<span class="dim">Reset to two applied revisions.</span>');
+}
+
+/* ============== 3B: Prisma Migrate ============== */
+const PRM_DEFAULT=`model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+}`;
+function prmDiff(){
+  const cur=document.getElementById('prm-schema').value;
+  const fields={};
+  const m=cur.match(/model\s+\w+\s*\{([\s\S]*?)\}/);
+  if(!m){setOut('prm-out','<span class="err">No model {} block detected.</span>');return;}
+  const body=m[1];
+  body.split('\n').forEach(line=>{
+    const t=line.trim();if(!t||t.startsWith('//'))return;
+    const mm=t.match(/^(\w+)\s+(\w+)/);if(mm)fields[mm[1]]={raw:t,type:mm[2]};
+  });
+  const baseFields={id:1,name:1};
+  const added=Object.keys(fields).filter(k=>!baseFields[k]);
+  if(!added.length){setOut('prm-out','<span class="dim">No drift detected — schema matches the DB. Try adding a line like <code>email String @unique</code>.</span>');return;}
+  const sqlLines=added.map(k=>{
+    const f=fields[k];
+    let line=`ALTER TABLE "User" ADD COLUMN "${k}" ${f.type==='String'?'TEXT':f.type.toUpperCase()}`;
+    if(/@unique/.test(f.raw))line+=' UNIQUE';
+    if(!/\?/.test(f.raw))line+=' NOT NULL';
+    return line+';';
+  });
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\..*/,'').slice(0,15);
+  setOut('prm-out',`<span class="info">$ prisma migrate dev --name auto</span>\n  Applying migration <span class="dim">migrations/${stamp}_auto/migration.sql</span>\n\n`+sqlLines.map(l=>`<span class="ok">${esc(l)}</span>`).join('\n')+`\n\n<span class="ok">✓ Database is now in sync with schema.prisma</span>`);
+}
+function prmReset(){
+  const t=document.getElementById('prm-schema');t.value=PRM_DEFAULT;autoGrow(t);
+  setOut('prm-out','<span class="dim">Schema reset.</span>');
+}
+
+/* ============== 4A: Transactions ============== */
+let BAL={a:500,b:300};
+function paintBal(){
+  const a=document.getElementById('bal-a'),b=document.getElementById('bal-b');
+  a.textContent='$'+BAL.a;b.textContent='$'+BAL.b;
+  a.className='amt'+(BAL.a<0?' neg':'');b.className='amt'+(BAL.b<0?' neg':'');
+}
+function resetTxn(){BAL={a:500,b:300};paintBal();document.getElementById('d-a').textContent='';document.getElementById('d-b').textContent='';setOut('tx-out','<span class="dim">Balances reset.</span>');}
+async function runTxn(){
+  const useTx=document.getElementById('tx-mode').value==='yes';
+  const crash=document.getElementById('tx-crash').value==='yes';
+  const out=document.getElementById('tx-out');out.innerHTML='';
+  const log=h=>{out.innerHTML+=h+'\n';};
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const before={...BAL};
+  log('<span class="dim">$ START transfer 100 from Alice to Bob</span>');
+  if(useTx)log('<span class="info">BEGIN;</span>');
+  await sleep(300);
+  BAL.a-=100;paintBal();document.getElementById('d-a').textContent='-100';
+  log(`<span class="info">UPDATE accounts SET balance = balance - 100 WHERE id = 'alice';</span>  <span class="dim">(Alice: ${before.a} → ${BAL.a})</span>`);
+  await sleep(400);
+  if(crash){
+    log('<span class="err">  ✖ server crash before credit</span>');
+    if(useTx){
+      BAL=before;paintBal();document.getElementById('d-a').textContent='';document.getElementById('d-b').textContent='';
+      log('<span class="info">  → DB sees no COMMIT, runs ROLLBACK on reconnect</span>');
+      log('<span class="ok">✓ atomic: balances restored, no money lost</span>');
+    }else{
+      document.getElementById('d-b').textContent='(never received)';
+      log('<span class="err">✖ no transaction: Alice debited, Bob never credited</span>');
+      log('<span class="err">  $100 vanished. This is real money in production.</span>');
+    }
+    return;
+  }
+  BAL.b+=100;paintBal();document.getElementById('d-b').textContent='+100';
+  log(`<span class="info">UPDATE accounts SET balance = balance + 100 WHERE id = 'bob';</span>  <span class="dim">(Bob: ${before.b} → ${BAL.b})</span>`);
+  await sleep(300);
+  if(useTx)log('<span class="info">COMMIT;</span>');
+  log('<span class="ok">✓ transfer complete</span>');
+}
+paintBal();
+
+/* ============== 4B: Connection pool ============== */
+const POOL_SIZE=5;
+let pool=Array.from({length:POOL_SIZE},(_,i)=>({id:i+1,busy:false}));
+let queue=[];
+function poolRender(){
+  const v=document.getElementById('pool-vis');
+  v.innerHTML=pool.map(c=>`<div class="pool-conn${c.busy?' busy':''}" title="conn #${c.id}">${c.busy?'#'+c.id:'idle'}</div>`).join('')
+    + queue.map((_,i)=>`<div class="pool-conn queued" title="waiting">wait</div>`).join('');
+}
+function poolStatus(){
+  const used=pool.filter(c=>c.busy).length;
+  return `pool: ${used}/${POOL_SIZE} busy · queue: ${queue.length}`;
+}
+function poolHit(n){
+  const out=document.getElementById('pool-out');out.innerHTML='';
+  for(let i=0;i<n;i++){
+    const free=pool.find(c=>!c.busy);
+    if(free){free.busy=true;out.innerHTML+=`<span class="ok">✓ request acquired conn #${free.id}</span>\n`;}
+    else{queue.push(1);out.innerHTML+=`<span class="warn">… request queued (pool full)</span>\n`;}
+  }
+  out.innerHTML+=`<span class="dim">${poolStatus()}</span>`;
+  poolRender();
+}
+function poolRelease(){
+  const out=document.getElementById('pool-out');out.innerHTML='';
+  const busy=pool.find(c=>c.busy);
+  if(!busy){out.innerHTML='<span class="dim">No busy connections to release.</span>';return;}
+  busy.busy=false;
+  out.innerHTML+=`<span class="info">↩ released conn #${busy.id}</span>\n`;
+  if(queue.length){
+    queue.shift();
+    busy.busy=true;
+    out.innerHTML+=`<span class="ok">✓ queued request grabbed conn #${busy.id}</span>\n`;
+  }
+  out.innerHTML+=`<span class="dim">${poolStatus()}</span>`;
+  poolRender();
+}
+function poolReset(){pool=Array.from({length:POOL_SIZE},(_,i)=>({id:i+1,busy:false}));queue=[];poolRender();setOut('pool-out','<span class="dim">Pool reset.</span>');}
+poolRender();
+
+/* ============== 4C: Cache ============== */
+const DB_USERS={1:'Ana',2:'Bea',3:'Cleo',42:'Dougie'};
+let cache={};let stats={hits:0,miss:0,db:0};
+function cachePaint(){
+  const k=Object.keys(cache);
+  document.getElementById('cache-list').innerHTML=k.length?k.map(i=>`<div class="cache-entry">user:${i} → "${esc(cache[i])}"</div>`).join(''):'<span class="dim" style="font-size:.78em;">empty</span>';
+  document.getElementById('c-hits').textContent=stats.hits;
+  document.getElementById('c-miss').textContent=stats.miss;
+  document.getElementById('c-db').textContent=stats.db;
+}
+async function cacheGet(){
+  const id=document.getElementById('c-id').value;
+  const out=document.getElementById('c-out');out.innerHTML='';
+  const log=h=>{out.innerHTML+=h+'\n';};
+  log(`<span class="dim">$ GET /user/${id}</span>`);
+  if(cache[id]!==undefined){
+    stats.hits++;
+    document.getElementById('c-lat').textContent='1ms';
+    log(`<span class="ok">✓ cache HIT  GET user:${id} → "${esc(cache[id])}"</span>  <span class="dim">~1ms</span>`);
+  }else{
+    stats.miss++;
+    log(`<span class="warn">… cache MISS  GET user:${id} → (nil)</span>`);
+    log('<span class="dim">→ falling back to Postgres…</span>');
+    await new Promise(r=>setTimeout(r,400));
+    const v=DB_USERS[id]||'(not found)';
+    stats.db++;
+    log(`<span class="info">SELECT name FROM users WHERE id = ${id};   → "${esc(v)}"</span>`);
+    cache[id]=v;
+    log(`<span class="info">SET user:${id} "${esc(v)}" EX 60</span>  <span class="dim">~40ms</span>`);
+    document.getElementById('c-lat').textContent='~40ms';
+  }
+  cachePaint();
+}
+function cacheEvict(){cache={};stats={hits:0,miss:0,db:0};cachePaint();setOut('c-out','<span class="warn">FLUSHDB — cache cleared, stats reset.</span>');document.getElementById('c-lat').textContent='—';}
+cachePaint();
+
+/* ============== INITIAL FIT ============== */
+document.querySelectorAll('textarea').forEach(t=>{
+  autoGrow(t);
+  t.addEventListener('input',()=>autoGrow(t));
+});
+window.addEventListener('load',fitAll);
+</script>
+</body>
+</html>
