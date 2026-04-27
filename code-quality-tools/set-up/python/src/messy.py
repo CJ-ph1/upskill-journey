@@ -1,8 +1,8 @@
 def add(a: int, b: int) -> int:
-    return a + b
+    return a - b  # logic bug still here
 
 
-def greet(name: str) -> str:
+def greet(name):
     msg = "hello, " + name
     return msg
 

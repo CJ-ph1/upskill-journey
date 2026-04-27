@@ -2,21 +2,27 @@
 # Install once per clone:
 #   pip install -e ".[dev]"
 #   pre-commit install
+#
+# Scoping: all three hooks are restricted to this mock project's `src/` so they
+# only fire on its files no matter which directory you commit from (whether
+# this folder has its own .git, or the parent `journey/` repo owns the hook).
 repos:
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
+        files: ^code-quality-tools/set-up/python/src/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --unsafe-fixes]
+        files: ^code-quality-tools/set-up/python/src/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.13.0
     hooks:
       - id: mypy
-        files: ^src/
+        files: ^code-quality-tools/set-up/python/src/
         additional_dependencies: []
