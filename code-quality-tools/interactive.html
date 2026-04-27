@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Quality Tools — Interactive Playground</title>
+<style>
+:root{--bg:#0f1117;--s1:#1a1d27;--s2:#232733;--bdr:#2e3345;--txt:#e2e8f0;--dim:#8892a8;--accent:#6c63ff;--green:#51cf66;--red:#ff6b6b;--orange:#ff9f43;--cyan:#22d3ee;--blue:#4facfe;--pink:#ff6b9d;--yellow:#ffd43b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;}
+.hero{text-align:center;padding:50px 20px 30px;border-bottom:1px solid var(--bdr);}
+.hero h1{font-size:2.4em;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--dim);font-size:1.05em;margin-top:6px;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(15,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+.topbar button{background:var(--s1);border:1px solid var(--bdr);color:var(--dim);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:.82em;font-weight:600;transition:.2s;}
+.topbar button:hover,.topbar button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.container{max-width:1050px;margin:0 auto;padding:24px 16px;}
+.flow-section{margin-bottom:50px;}
+.flow-header{display:flex;align-items:center;gap:14px;margin-bottom:6px;padding-bottom:10px;border-bottom:2px solid var(--bdr);}
+.flow-num{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1em;color:#fff;flex-shrink:0;}
+.flow-header h2{font-size:1.5em;font-weight:700;}
+.flow-header p{font-size:.88em;color:var(--dim);}
+.flow-map{background:var(--s1);border:1px solid var(--bdr);border-radius:12px;padding:18px 22px;margin:14px 0 20px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;}
+.fm-node{padding:8px 14px;border-radius:8px;font-size:.82em;font-weight:700;cursor:pointer;transition:.2s;border:1px solid var(--bdr);background:var(--s2);}
+.fm-node:hover{transform:translateY(-2px);border-color:var(--accent);}
+.fm-node.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.fm-arrow{color:var(--dim);font-size:1.1em;}
+.lab{margin-bottom:20px;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;background:var(--s1);}
+.lab-head{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+.lab-head:hover{background:var(--s2);}
+.lab-tag{padding:3px 10px;border-radius:6px;font-size:.72em;font-weight:700;flex-shrink:0;}
+.lab-head h3{font-size:1.05em;flex:1;}
+.lab-head .arrow{color:var(--dim);font-size:1em;transition:.3s;}
+.lab.open .arrow{transform:rotate(180deg);}
+.lab-body{display:none;padding:20px;}
+.lab.open .lab-body{display:block;}
+.lab-intro{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:.9em;color:var(--dim);line-height:1.7;}
+.lab-intro strong{color:var(--txt);}
+.lab-intro code{background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.88em;color:var(--cyan);}
+.sandbox{background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:18px;margin-bottom:14px;}
+.sandbox h4{font-size:.95em;margin-bottom:10px;color:var(--accent);}
+.sandbox h5{font-size:.85em;margin:10px 0 6px;color:var(--orange);}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:10px;}
+.col{flex:1;min-width:200px;}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--s2);border:1px solid var(--bdr);color:var(--txt);padding:9px 12px;border-radius:8px;font-family:inherit;font-size:.88em;outline:none;transition:.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:80px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.82em;line-height:1.55;overflow:hidden;}
+.btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.85em;transition:.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn:active{transform:scale(.96);}
+.btn-p{background:var(--accent);color:#fff;}.btn-p:hover{background:#5a52e0;}
+.btn-g{background:var(--green);color:#111;}.btn-g:hover{background:#43b556;}
+.btn-r{background:var(--red);color:#111;}.btn-r:hover{background:#e05555;}
+.btn-o{background:var(--orange);color:#111;}.btn-o:hover{background:#e88c30;}
+.btn-c{background:var(--cyan);color:#111;}
+.btn-sm{padding:5px 12px;font-size:.8em;}
+.output{background:var(--s1);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-top:8px;font-family:'Cascadia Code','Fira Code',monospace;font-size:.8em;white-space:pre-wrap;word-break:break-word;min-height:36px;}
+.output .ok{color:var(--green);}.output .err{color:var(--red);}.output .warn{color:var(--orange);}.output .info{color:var(--cyan);}.output .dim{color:var(--dim);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.73em;font-weight:700;}
+.badge-ok{background:rgba(81,207,102,.15);color:var(--green);border:1px solid rgba(81,207,102,.3);}
+.badge-err{background:rgba(255,107,107,.15);color:var(--red);border:1px solid rgba(255,107,107,.3);}
+.badge-warn{background:rgba(255,159,67,.15);color:var(--orange);border:1px solid rgba(255,159,67,.3);}
+.badge-info{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.3);}
+.steps{display:flex;gap:3px;margin-bottom:14px;}.step{flex:1;height:5px;border-radius:3px;background:var(--s2);transition:.3s;}.step.done{background:var(--green);}.step.active{background:var(--accent);}.step.fail{background:var(--red);}
+.why-box,.whatif-box,.analogy-box{border-radius:10px;padding:14px 18px;margin:12px 0;font-size:.88em;line-height:1.7;cursor:pointer;position:relative;}
+.why-box{background:rgba(108,99,255,.07);border:1px solid rgba(108,99,255,.22);}
+.whatif-box{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.22);}
+.analogy-box{background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.22);}
+.box-title{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.why-box .box-title{color:var(--accent);}.whatif-box .box-title{color:var(--red);}.analogy-box .box-title{color:#00d4aa;}
+.box-body{display:none;color:var(--txt);}.box-body.show{display:block;}
+.box-body ul{padding-left:18px;margin:6px 0;}.box-body li{margin-bottom:4px;}
+.box-body strong{color:var(--txt);}.box-body code{background:var(--bg);padding:2px 6px;border-radius:4px;font-size:.88em;color:var(--cyan);}
+.box-toggle{position:absolute;right:14px;top:14px;color:var(--dim);font-size:.78em;}
+.pipeline{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.pipe-step{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--s2);border:1px solid var(--bdr);border-radius:10px;transition:.25s;}
+.pipe-step.run{border-color:var(--accent);background:rgba(108,99,255,.08);}
+.pipe-step.ok{border-color:var(--green);background:rgba(81,207,102,.08);}
+.pipe-step.err{border-color:var(--red);background:rgba(255,107,107,.08);}
+.pipe-step.skip{opacity:.4;}
+.pipe-icon{width:34px;height:34px;border-radius:50%;background:var(--bg);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9em;color:var(--dim);flex-shrink:0;}
+.pipe-step.run .pipe-icon{color:var(--accent);border-color:var(--accent);}
+.pipe-step.ok .pipe-icon{color:var(--green);border-color:var(--green);}
+.pipe-step.err .pipe-icon{color:var(--red);border-color:var(--red);}
+.pipe-name{font-weight:700;font-size:.92em;flex:1;}
+.pipe-detail{font-size:.78em;color:var(--dim);}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px;}
+.compare-card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px;}
+.compare-card h5{font-size:.95em;margin-bottom:8px;color:var(--accent);}
+.compare-card .q{font-size:.82em;color:var(--dim);margin-bottom:10px;font-style:italic;}
+.compare-card ul{padding-left:18px;font-size:.82em;}
+.compare-card li{margin-bottom:4px;}
+.lang-toggle{display:inline-flex;background:var(--s2);border:1px solid var(--bdr);border-radius:8px;padding:3px;gap:3px;}
+.lang-toggle button{background:transparent;border:none;color:var(--dim);padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.82em;}
+.lang-toggle button.on{background:var(--accent);color:#fff;}
+@media(max-width:600px){.row{flex-direction:column;}.col{min-width:100%;}.flow-map{flex-direction:column;align-items:stretch;}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>Code Quality Tools Playground</h1>
+  <p>Four tools, four questions. Touch each one. Watch them fire on a commit. — Python &amp; JS/TS.</p>
+</div>
+<div class="topbar" id="nav"></div>
+<div class="container" id="main">
+
+<!-- ====================================================================
+     FLOW 1: FORMATTER
+     ==================================================================== -->
+<div class="flow-section" id="flow-formatter">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--cyan);">1</div>
+    <div><h2>Formatter</h2><p>"Does this look consistent?" — rewrites style only, never logic.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Messy source</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Formatter</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Spacing fixed</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Quotes normalized</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Lines wrapped</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Same code, clean look</span>
+  </div>
+
+  <!-- 1A: Black -->
+  <div class="lab open" id="lab-black" data-title="Black (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(34,211,238,.15);color:var(--cyan);">PYTHON</span><h3>Black — Format Messy Python In One Click</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Black is opinionated by design: almost no config. You give it ugly Python, you get back the canonical layout — 4-space indent, double quotes, blank lines around <code>def</code>/<code>class</code>, lines wrapped at the limit. <strong>It only changes how the code looks, never what it does.</strong></div>
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Analogy: A laundry-fold robot <span class="box-toggle">click</span></div><div class="box-body"><p>You hand it a pile of clothes (messy code). It folds them all the same way (consistent style). It does <strong>not</strong> tell you the shirt is on backwards (logic bugs) — it just folds.</p></div></div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why pick Black over alternatives? <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Zero-config:</strong> you accept Black's style and stop arguing about tabs vs spaces.</li><li><strong>Idempotent:</strong> running Black twice is the same as running it once.</li><li><strong>Wide adoption:</strong> works the same way in every project, every IDE.</li></ul></div></div>
+      <div class="sandbox">
+        <h4>Try it: edit the messy code, then run Black</h4>
+        <h5>Input (messy)</h5>
+        <textarea id="black-in">import   os
+def add( a,b ):return a+b
+class   User: pass
+
+x={ 'a':1,'b'  :2,'c':3 }
+def greet(name='world'):print('hello',name)</textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="runBlack()">Run Black</button>
+          <button class="btn btn-sm btn-o" onclick="resetBlack()">Reset</button>
+          <span style="font-size:.8em;color:var(--dim);align-self:center;">Equivalent to: <code style="color:var(--cyan);background:var(--bg);padding:2px 6px;border-radius:4px;">black .</code></span>
+        </div>
+        <h5>Output (Black-formatted)</h5>
+        <div class="output" id="black-out"><span class="dim">Click "Run Black" to format the code above.</span></div>
+      </div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What Black does NOT catch <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Bugs:</strong> <code>def add(a, b): return a - b</code> formats fine. The minus is none of Black's business.</li><li><strong>Unused imports:</strong> Black leaves <code>import os</code> alone even if you never use it. (That's the linter's job.)</li><li><strong>Wrong types:</strong> <code>add("1", "2")</code> formats cleanly even though strings into int params will explode. (That's the type checker's job.)</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 1B: Prettier -->
+  <div class="lab" id="lab-prettier" data-title="Prettier (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(34,211,238,.15);color:var(--cyan);">JS / TS</span><h3>Prettier — The JS/TS Equivalent of Black</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Prettier is the de facto JS/TS formatter. Same philosophy as Black: opinionated, almost no knobs. Handles JS, TS, JSX, JSON, CSS, Markdown, YAML — all in one tool. Pairs with ESLint via <code>eslint-config-prettier</code> so the two never argue.</div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Black ↔ Prettier — same job, different ecosystem <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Same goal: <strong>kill the style debate</strong>.</li><li>Same trick: <strong>no config, just run it</strong>.</li><li>Different scope: Prettier covers more file types because the JS world has many.</li></ul></div></div>
+      <div class="sandbox">
+        <h4>Try it: edit the messy TS, then run Prettier</h4>
+        <h5>Input (messy)</h5>
+        <textarea id="prettier-in">import {foo,bar}   from "./x"
+const greet=(name:string)=>{return 'hi '+name }
+const user={ name:'cj',age :30}
+function sum(a:number,b:number){return a+b};</textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="runPrettier()">Run Prettier</button>
+          <button class="btn btn-sm btn-o" onclick="resetPrettier()">Reset</button>
+          <span style="font-size:.8em;color:var(--dim);align-self:center;">Equivalent to: <code style="color:var(--cyan);background:var(--bg);padding:2px 6px;border-radius:4px;">prettier --write .</code></span>
+        </div>
+        <h5>Output (Prettier-formatted)</h5>
+        <div class="output" id="prettier-out"><span class="dim">Click "Run Prettier" to format the code above.</span></div>
+      </div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Common Prettier-vs-ESLint confusion <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Prettier formats. ESLint lints.</strong> Don't make ESLint enforce semicolons or quote style — that fights Prettier.</li><li>Install <code>eslint-config-prettier</code> and put it last in your ESLint config. It disables every ESLint rule that overlaps with Prettier.</li><li>Result: Prettier owns layout, ESLint owns code-quality rules. No conflicts.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 2: LINTER
+     ==================================================================== -->
+<div class="flow-section" id="flow-linter">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--orange);">2</div>
+    <div><h2>Linter</h2><p>"Is this suspicious or wrong?" — a tireless code reviewer that flags bad patterns.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Source code</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Static analysis</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Pattern rules</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Warnings</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Auto-fix or block</span>
+  </div>
+
+  <!-- 2A: Ruff -->
+  <div class="lab open" id="lab-ruff" data-title="Ruff (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,159,67,.15);color:var(--orange);">PYTHON</span><h3>Ruff — Spot Suspicious Python Code</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Ruff is a Rust-based Python linter that bundles dozens of rule sets (pyflakes, pycodestyle, isort, pyupgrade, bugbear, ...) into one binary. It's <strong>10–100× faster</strong> than the older Python linters. It can also auto-fix most of what it finds.</div>
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Analogy: A code reviewer that never sleeps <span class="box-toggle">click</span></div><div class="box-body"><p>It doesn't run your code. It just reads it and goes: "you imported <code>os</code> but never used it", "this variable is dead", "this comparison should be <code>is None</code>". You decide whether to fix or ignore.</p></div></div>
+      <div class="sandbox">
+        <h4>Try it: lint this Python (then turn on auto-fix)</h4>
+        <h5>Input</h5>
+        <textarea id="ruff-in">import os
+import sys
+from typing import List
+
+def get_users(ids: List[int]):
+    result = []
+    return [u for u in fetch(ids)]
+
+def check(x):
+    if x == None:
+        return True</textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="runRuff(false)">ruff check .</button>
+          <button class="btn btn-g" onclick="runRuff(true)">ruff check --fix</button>
+          <button class="btn btn-sm btn-o" onclick="resetRuff()">Reset</button>
+        </div>
+        <h5>Report</h5>
+        <div class="output" id="ruff-out"><span class="dim">Click "ruff check ." to see what's flagged.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why one tool replaced five <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Before Ruff:</strong> Flake8 + isort + pyupgrade + pylint + bugbear — 5 tools, 5 configs, 5 install steps.</li><li><strong>With Ruff:</strong> one binary, one block in <code>pyproject.toml</code>, faster than any of the originals.</li><li>You pick rule families with <code>select = ["E","F","I","B","UP"]</code> — that's pycodestyle, pyflakes, isort, bugbear, pyupgrade in one line.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What the linter still cannot catch <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Wrong logic:</strong> <code>def divide(a, b): return a + b</code> looks fine to Ruff.</li><li><strong>Wrong types:</strong> Ruff doesn't read your annotations as types. (MyPy does.)</li><li><strong>Cross-file behavior:</strong> A linter sees one file's patterns. It can't simulate your whole program.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 2B: ESLint -->
+  <div class="lab" id="lab-eslint" data-title="ESLint (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,159,67,.15);color:var(--orange);">JS / TS</span><h3>ESLint — Spot Suspicious JS/TS Code</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">ESLint is the de facto JS/TS linter. With <code>typescript-eslint</code> it understands TypeScript types and adds dozens of TS-specific rules. Modern flat config (<code>eslint.config.js</code>) keeps the setup small.</div>
+      <div class="sandbox">
+        <h4>Try it: lint this TypeScript</h4>
+        <h5>Input</h5>
+        <textarea id="eslint-in">import { foo } from "./x";
+const bar = 42;
+
+function getUser(id) {
+  if (id == null) return;
+  console.log("debug", id);
+  return fetchUser(id);
+}</textarea>
+        <div class="row" style="margin-top:8px;">
+          <button class="btn btn-p" onclick="runEslint(false)">eslint .</button>
+          <button class="btn btn-g" onclick="runEslint(true)">eslint . --fix</button>
+          <button class="btn btn-sm btn-o" onclick="resetEslint()">Reset</button>
+        </div>
+        <h5>Report</h5>
+        <div class="output" id="eslint-out"><span class="dim">Click "eslint ." to see what's flagged.</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why pair ESLint with Prettier <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Make ESLint enforce <strong>code-quality</strong> rules (no <code>any</code>, no <code>console.log</code>, hook rules, ...).</li><li>Let Prettier own <strong>layout</strong> (quotes, semis, indent).</li><li>Add <code>eslint-config-prettier</code> last so they don't fight.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Common ESLint mistakes <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Disabling rules with <code>// eslint-disable</code></strong> instead of fixing them. Six months later, the file is a graveyard of disabled lines.</li><li><strong>Using ESLint as a type checker.</strong> ESLint can flag type smells; <code>tsc --noEmit</code> is the actual type checker.</li><li><strong>Letting ESLint and Prettier fight.</strong> Always add <code>eslint-config-prettier</code> last in your config.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 3: TYPE CHECKER
+     ==================================================================== -->
+<div class="flow-section" id="flow-typecheck">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--accent);">3</div>
+    <div><h2>Type Checker</h2><p>"Are types used correctly?" — proves shape without running the code.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">Annotated source</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Static analysis</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Type inference</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Argument check</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Type errors</span>
+  </div>
+
+  <!-- 3A: MyPy -->
+  <div class="lab open" id="lab-mypy" data-title="MyPy (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(108,99,255,.15);color:var(--accent);">PYTHON</span><h3>MyPy — Catch Type Mismatches Before You Run</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Python is dynamically typed at runtime — but with type hints (<code>def f(x: int) -&gt; str:</code>), MyPy can statically prove that values flow through your code in compatible types. <strong>It only checks what you've annotated</strong> — no annotations means no signal.</div>
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Analogy: A passport check at the airport <span class="box-toggle">click</span></div><div class="box-body"><p>Each function parameter has a "country" (a type). The type checker is the gate agent: "you said you're flying to <code>int</code>-land, but your passport says <code>str</code>." No flight runs — the mismatch is caught at the gate.</p></div></div>
+      <div class="sandbox">
+        <h4>Try it: introduce a type error and let MyPy catch it</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Pick a scenario</label>
+            <select id="mypy-case" onchange="resetMypy()">
+              <option value="ok">Valid — types line up</option>
+              <option value="strarg" selected>Bug — passing strings to int params</option>
+              <option value="badret">Bug — returning the wrong type</option>
+              <option value="noann">Bug hidden — no annotations</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runMypy()">mypy .</button></div>
+        </div>
+        <h5>Source</h5>
+        <div class="output" id="mypy-src" style="color:var(--txt);"></div>
+        <h5>Report</h5>
+        <div class="output" id="mypy-out"><span class="dim">Pick a scenario and click "mypy .".</span></div>
+      </div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What MyPy still cannot do <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Logic bugs:</strong> <code>def add(a:int,b:int)-&gt;int: return a-b</code> is type-correct. Tests catch this; types don't.</li><li><strong>Untyped code:</strong> if you don't annotate, MyPy has no signal. Strict mode fails on missing annotations on purpose.</li><li><strong>Highly dynamic Python:</strong> <code>getattr</code>, <code>**kwargs</code>, monkey-patching — types can only go so far.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 3B: TypeScript -->
+  <div class="lab" id="lab-tsc" data-title="TypeScript (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(108,99,255,.15);color:var(--accent);">JS / TS</span><h3>TypeScript — tsc --noEmit as a Pure Type Checker</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro"><strong>TypeScript is two things:</strong> a language and a type checker. With <code>tsc --noEmit</code> we run the compiler in pure-check mode — no output files, just type errors. <code>"strict": true</code> in <code>tsconfig.json</code> is the single most important setting: it enables <code>strictNullChecks</code>, <code>noImplicitAny</code>, and friends.</div>
+      <div class="sandbox">
+        <h4>Try it: introduce a type error and run tsc</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Pick a scenario</label>
+            <select id="tsc-case" onchange="resetTsc()">
+              <option value="ok">Valid — types line up</option>
+              <option value="strarg" selected>Bug — passing strings to number params</option>
+              <option value="propnotexist">Bug — accessing a property that doesn't exist</option>
+              <option value="any">Hidden — silenced with <code>any</code></option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runTsc()">tsc --noEmit</button></div>
+        </div>
+        <h5>Source</h5>
+        <div class="output" id="tsc-src" style="color:var(--txt);"></div>
+        <h5>Report</h5>
+        <div class="output" id="tsc-out"><span class="dim">Pick a scenario and click "tsc --noEmit".</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why <code>any</code> is the silent killer <span class="box-toggle">click</span></div><div class="box-body"><ul><li><code>any</code> tells the type checker "trust me, don't look". Bugs slip past silently.</li><li>Same for <code>// @ts-ignore</code> — you've turned the alarm off, not fixed the wiring.</li><li>Use <code>unknown</code> when you don't know the type yet. It forces a check before use.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 4: GIT HOOKS
+     ==================================================================== -->
+<div class="flow-section" id="flow-githooks">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--green);color:#111;">4</div>
+    <div><h2>Git Hooks</h2><p>"Should this code even be allowed to commit?" — automation that wires the other three together.</p></div>
+  </div>
+  <div class="flow-map">
+    <span class="fm-node">git commit</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Formatter</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Linter</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Type checker</span><span class="fm-arrow">&#10132;</span>
+    <span class="fm-node">Pass → commit</span>
+    <span class="fm-arrow">/</span>
+    <span class="fm-node" style="border-color:var(--red);color:var(--red);">Fail → blocked</span>
+  </div>
+
+  <!-- 4A: pre-commit -->
+  <div class="lab open" id="lab-precommit" data-title="pre-commit (Python)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(81,207,102,.15);color:var(--green);">PYTHON</span><h3>pre-commit — One YAML Wires Black + Ruff + MyPy</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Raw <code>.git/hooks/</code> are per-clone and not version-controlled. The <strong>pre-commit</strong> framework solves that: hook config lives in a tracked <code>.pre-commit-config.yaml</code>, and <code>pre-commit install</code> drops the actual scripts into <code>.git/hooks/</code> for every team member.</div>
+      <div class="sandbox">
+        <h4>Simulate a Python commit</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Stage what kind of file?</label>
+            <select id="pc-file">
+              <option value="clean">src/ok.py — already clean &amp; typed</option>
+              <option value="messy">src/messy.py — bad formatting only</option>
+              <option value="unused" selected>src/messy.py — formatting + unused import</option>
+              <option value="typebug">src/messy.py — formatting + lint + type bug</option>
+            </select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Bypass?</label>
+            <select id="pc-bypass">
+              <option value="no" selected>git commit -m "..."</option>
+              <option value="yes">git commit --no-verify -m "..."</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runPrecommit()">git commit</button></div>
+        </div>
+        <div class="pipeline" id="pc-pipe">
+          <div class="pipe-step" data-step="black"><div class="pipe-icon">1</div><div class="pipe-name">Black <span class="pipe-detail">format on staged files</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="ruff"><div class="pipe-icon">2</div><div class="pipe-name">Ruff <span class="pipe-detail">lint --fix on staged files</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="mypy"><div class="pipe-icon">3</div><div class="pipe-name">MyPy <span class="pipe-detail">type-check (no auto-fix)</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="commit"><div class="pipe-icon">&#10003;</div><div class="pipe-name">Commit <span class="pipe-detail">accept or block</span></div><div class="badge badge-info">pending</div></div>
+        </div>
+        <h5>Console</h5>
+        <div class="output" id="pc-out"><span class="dim">Pick a file state and click "git commit".</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why "files were modified by this hook" is a feature <span class="box-toggle">click</span></div><div class="box-body"><ul><li>If Black reformats your file, pre-commit <strong>rejects the commit</strong>. That's intentional.</li><li>The reason: your staged content no longer matches the files on disk. Re-stage with <code>git add</code> and commit again.</li><li>This guarantees: the code that lands in the repo is exactly what passed all checks.</li></ul></div></div>
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title"><code>--no-verify</code> exists, but don't normalize it <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Anyone can bypass hooks with <code>git commit --no-verify</code>. That's by design — emergencies happen.</li><li>If a hook is wrong, <strong>fix the hook</strong>. Don't teach your team that bypassing is normal.</li><li>CI is the real backstop: even if someone <code>--no-verify</code>'s, CI runs the same checks on the PR.</li></ul></div></div>
+    </div>
+  </div>
+
+  <!-- 4B: Husky -->
+  <div class="lab" id="lab-husky" data-title="Husky + lint-staged (JS/TS)">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(81,207,102,.15);color:var(--green);">JS / TS</span><h3>Husky + lint-staged — Two Tools, One Pipeline</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">In the JS/TS world, the same job is split between two tools:
+        <ul style="margin:8px 0 0 22px;color:var(--txt);">
+          <li><strong>Husky</strong> — manages <code>.git/hooks/</code> from a tracked <code>.husky/</code> directory.</li>
+          <li><strong>lint-staged</strong> — runs commands only on <strong>staged files</strong> so commits stay fast.</li>
+        </ul>
+      </div>
+      <div class="sandbox">
+        <h4>Simulate a JS/TS commit</h4>
+        <div class="row">
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Stage what kind of file?</label>
+            <select id="hk-file">
+              <option value="clean">src/ok.ts — already clean &amp; typed</option>
+              <option value="messy">src/messy.ts — bad formatting only</option>
+              <option value="unused" selected>src/messy.ts — formatting + unused import</option>
+              <option value="typebug">src/messy.ts — formatting + lint + type bug</option>
+            </select>
+          </div>
+          <div class="col">
+            <label style="font-size:.82em;color:var(--dim);">Bypass?</label>
+            <select id="hk-bypass">
+              <option value="no" selected>git commit -m "..."</option>
+              <option value="yes">git commit --no-verify -m "..."</option>
+            </select>
+          </div>
+          <div class="col" style="align-self:flex-end;"><button class="btn btn-p" onclick="runHusky()">git commit</button></div>
+        </div>
+        <div class="pipeline" id="hk-pipe">
+          <div class="pipe-step" data-step="prettier"><div class="pipe-icon">1</div><div class="pipe-name">Prettier <span class="pipe-detail">via lint-staged — staged files only</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="eslint"><div class="pipe-icon">2</div><div class="pipe-name">ESLint --fix <span class="pipe-detail">via lint-staged — staged files only</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="tsc"><div class="pipe-icon">3</div><div class="pipe-name">tsc --noEmit <span class="pipe-detail">whole project — needs full module graph</span></div><div class="badge badge-info">pending</div></div>
+          <div class="pipe-step" data-step="commit"><div class="pipe-icon">&#10003;</div><div class="pipe-name">Commit <span class="pipe-detail">accept or block</span></div><div class="badge badge-info">pending</div></div>
+        </div>
+        <h5>Console</h5>
+        <div class="output" id="hk-out"><span class="dim">Pick a file state and click "git commit".</span></div>
+      </div>
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Why <code>tsc</code> runs on the whole project, not staged files <span class="box-toggle">click</span></div><div class="box-body"><ul><li>Type checking needs the whole module graph: a change in <code>a.ts</code> can break <code>b.ts</code> that imports from it.</li><li>If lint-staged ran <code>tsc</code> on just <code>a.ts</code>, you'd miss the breakage in <code>b.ts</code>.</li><li>So: Prettier + ESLint on staged files (fast). <code>tsc --noEmit</code> on the whole project (correct).</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================
+     FLOW 5: ALL FOUR TOGETHER
+     ==================================================================== -->
+<div class="flow-section" id="flow-bigpicture">
+  <div class="flow-header">
+    <div class="flow-num" style="background:var(--pink);">5</div>
+    <div><h2>The Big Picture</h2><p>Why each tool is a different question — and why none replaces the others.</p></div>
+  </div>
+
+  <div class="lab open" id="lab-compare" data-title="Side by side">
+    <div class="lab-head" onclick="toggleLab(this)"><span class="lab-tag" style="background:rgba(255,107,157,.15);color:var(--pink);">REVIEW</span><h3>Four Tools, Four Questions</h3><span class="arrow">&#9660;</span></div>
+    <div class="lab-body">
+      <div class="lab-intro">Each tool answers a question the others can't. <strong>That's why you need all four — they don't overlap.</strong> The git hook is the glue: it makes the other three run on every commit so nothing slips by.</div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h5>Formatter</h5>
+          <div class="q">"Does this look consistent?"</div>
+          <ul><li>Black (Python)</li><li>Prettier (JS/TS)</li><li>Touches layout only</li><li>Auto-rewrites</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>Linter</h5>
+          <div class="q">"Is this suspicious or wrong?"</div>
+          <ul><li>Ruff (Python)</li><li>ESLint (JS/TS)</li><li>Pattern-based warnings</li><li>Often auto-fixable</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>Type Checker</h5>
+          <div class="q">"Are types used correctly?"</div>
+          <ul><li>MyPy (Python)</li><li>TypeScript (JS/TS)</li><li>Static type analysis</li><li>Cross-file</li></ul>
+        </div>
+        <div class="compare-card">
+          <h5>Git Hooks</h5>
+          <div class="q">"Should this commit?"</div>
+          <ul><li>pre-commit (Python)</li><li>Husky + lint-staged (JS/TS)</li><li>Runs the other three</li><li>Blocks bad commits</li></ul>
+        </div>
+      </div>
+
+      <div class="analogy-box" onclick="this.querySelector('.box-body').classList.toggle('show')" style="margin-top:18px;"><div class="box-title">Analogy: Building a house <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Formatter</strong> = paint &amp; trim. Makes the house look uniform.</li><li><strong>Linter</strong> = the inspector who walks through pointing out exposed wires.</li><li><strong>Type checker</strong> = the structural engineer. "This beam can't carry that load."</li><li><strong>Git hooks</strong> = the city permit office. You don't get a certificate of occupancy until the other three sign off.</li></ul></div></div>
+
+      <div class="why-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">Same code, four different views <span class="box-toggle">click</span></div><div class="box-body"><p>Look at this snippet:</p><pre style="background:var(--bg);padding:10px;border-radius:6px;font-size:.82em;color:var(--txt);margin:6px 0;">import   os
+def divide(a: int, b: int) -&gt; int:
+    return a + b
+
+result = divide("10", "2")</pre><ul><li><strong>Formatter</strong> sees: extra spaces. <em>Fixable: yes.</em></li><li><strong>Linter</strong> sees: <code>os</code> imported but not used. <em>Fixable: yes (remove it).</em></li><li><strong>Type checker</strong> sees: <code>"10"</code> and <code>"2"</code> are strings, not ints. <em>Fixable: yes (cast or fix the call).</em></li><li><strong>None of them</strong> see the real bug: the function says "divide" but adds. <em>Only tests catch that.</em></li></ul></div></div>
+
+      <div class="whatif-box" onclick="this.querySelector('.box-body').classList.toggle('show')"><div class="box-title">What if you only use one of the four? <span class="box-toggle">click</span></div><div class="box-body"><ul><li><strong>Only formatter:</strong> code is pretty but full of bugs and dead imports.</li><li><strong>Only linter:</strong> bugs caught, but the team still argues about quotes.</li><li><strong>Only type checker:</strong> shape is correct, but unused code rots and style drifts.</li><li><strong>Only git hooks:</strong> nothing actually runs — the hook is a wrapper around the other three.</li></ul></div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ============== AUTO-GROW (no scrollbars on inputs/outputs) ============== */
+function autoGrow(el){
+  if(!el)return;
+  el.style.height='auto';
+  el.style.height=(el.scrollHeight+4)+'px';
+}
+function fitAll(){document.querySelectorAll('textarea').forEach(autoGrow);}
+
+/* ============== TOPBAR / NAV ============== */
+(function(){
+  const n=document.getElementById('nav');
+  document.querySelectorAll('.flow-section').forEach(s=>{
+    const b=document.createElement('button');
+    b.textContent=s.querySelector('h2').textContent;
+    b.onclick=()=>s.scrollIntoView({behavior:'smooth',block:'start'});
+    n.appendChild(b);
+  });
+})();
+function toggleLab(h){
+  h.parentElement.classList.toggle('open');
+  setTimeout(()=>h.parentElement.querySelectorAll('textarea').forEach(autoGrow),0);
+}
+
+/* ============== HELPERS ============== */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setOut(id,html){document.getElementById(id).innerHTML=html;}
+
+/* ============== 1A: BLACK ============== */
+const BLACK_DEFAULT=`import   os
+def add( a,b ):return a+b
+class   User: pass
+
+x={ 'a':1,'b'  :2,'c':3 }
+def greet(name='world'):print('hello',name)`;
+
+const BLACK_FORMATTED=`import os
+
+
+def add(a, b):
+    return a + b
+
+
+class User:
+    pass
+
+
+x = {"a": 1, "b": 2, "c": 3}
+
+
+def greet(name="world"):
+    print("hello", name)`;
+
+function runBlack(){
+  const inp=document.getElementById('black-in').value.trim();
+  const same=inp.replace(/\s+/g,' ')===BLACK_DEFAULT.replace(/\s+/g,' ');
+  if(same){
+    setOut('black-out','<span class="ok">All done! ✨ 🍰 ✨</span>\n<span class="dim">1 file reformatted.</span>\n\n'+esc(BLACK_FORMATTED));
+  }else{
+    let t=inp.replace(/'/g,'"').replace(/\(\s+/g,'(').replace(/\s+\)/g,')').replace(/,(\S)/g,', $1').replace(/\s{2,}/g,' ');
+    setOut('black-out','<span class="ok">All done! ✨ 🍰 ✨</span>\n<span class="dim">1 file reformatted (best-effort demo transform).</span>\n\n'+esc(t));
+  }
+}
+function resetBlack(){const t=document.getElementById('black-in');t.value=BLACK_DEFAULT;autoGrow(t);setOut('black-out','<span class="dim">Click "Run Black" to format the code above.</span>');}
+
+/* ============== 1B: PRETTIER ============== */
+const PRETTIER_DEFAULT=`import {foo,bar}   from "./x"
+const greet=(name:string)=>{return 'hi '+name }
+const user={ name:'cj',age :30}
+function sum(a:number,b:number){return a+b};`;
+
+const PRETTIER_FORMATTED=`import { foo, bar } from "./x";
+const greet = (name: string) => {
+  return "hi " + name;
+};
+const user = { name: "cj", age: 30 };
+function sum(a: number, b: number) {
+  return a + b;
+}`;
+
+function runPrettier(){
+  const inp=document.getElementById('prettier-in').value.trim();
+  const same=inp.replace(/\s+/g,' ')===PRETTIER_DEFAULT.replace(/\s+/g,' ');
+  if(same){
+    setOut('prettier-out','<span class="ok">prettier 3.x — formatted 1 file in 12ms</span>\n\n'+esc(PRETTIER_FORMATTED));
+  }else{
+    let t=inp.replace(/'/g,'"').replace(/\{(\S)/g,'{ $1').replace(/(\S)\}/g,'$1 }').replace(/,(\S)/g,', $1').replace(/=>\{/g,'=> {').replace(/\}\;/g,'}');
+    setOut('prettier-out','<span class="ok">prettier 3.x — formatted 1 file in 12ms</span>\n<span class="dim">(best-effort demo transform)</span>\n\n'+esc(t));
+  }
+}
+function resetPrettier(){const t=document.getElementById('prettier-in');t.value=PRETTIER_DEFAULT;autoGrow(t);setOut('prettier-out','<span class="dim">Click "Run Prettier" to format the code above.</span>');}
+
+/* ============== 2A: RUFF ============== */
+function runRuff(fix){
+  const code=document.getElementById('ruff-in').value;
+  let issues=[];
+  if(/^import\s+os\s*$/m.test(code)&&!/[^a-z]os\./.test(code))issues.push({code:'F401',line:1,msg:"`os` imported but unused",fix:true});
+  if(/^import\s+sys\s*$/m.test(code)&&!/[^a-z]sys\./.test(code))issues.push({code:'F401',line:2,msg:"`sys` imported but unused",fix:true});
+  if(/result\s*=\s*\[\]/.test(code)&&!/result\.|return\s+result/.test(code))issues.push({code:'F841',line:6,msg:"Local variable `result` is assigned to but never used",fix:true});
+  if(/\[u\s+for\s+u\s+in\s+fetch/.test(code))issues.push({code:'C416',line:7,msg:"Unnecessary list comprehension (rewrite using `list()`)",fix:true});
+  if(/==\s*None/.test(code))issues.push({code:'E711',line:10,msg:"Comparison to `None` should be `cond is None`",fix:true});
+  if(!issues.length){setOut('ruff-out','<span class="ok">All checks passed!</span>');return;}
+  let out=issues.map(i=>`<span class="warn">${i.code}</span> [<span class="info">${i.fix?'*':' '}</span>] line ${i.line}: ${esc(i.msg)}`).join('\n');
+  out+=`\n\n<span class="dim">Found ${issues.length} error${issues.length>1?'s':''}.</span>`;
+  if(fix){
+    const fixable=issues.filter(i=>i.fix).length;
+    out+=`\n<span class="ok">[*] ${fixable} fixable with the --fix option.</span>\n<span class="ok">Fixed ${fixable} error${fixable>1?'s':''}.</span>`;
+  }else{
+    out+=`\n<span class="info">[*] ${issues.filter(i=>i.fix).length} fixable with the \`--fix\` option.</span>`;
+  }
+  setOut('ruff-out',out);
+}
+function resetRuff(){const t=document.getElementById('ruff-in');t.value=`import os
+import sys
+from typing import List
+
+def get_users(ids: List[int]):
+    result = []
+    return [u for u in fetch(ids)]
+
+def check(x):
+    if x == None:
+        return True`;autoGrow(t);setOut('ruff-out','<span class="dim">Click "ruff check ." to see what\'s flagged.</span>');}
+
+/* ============== 2B: ESLINT ============== */
+function runEslint(fix){
+  const code=document.getElementById('eslint-in').value;
+  let issues=[];
+  if(/import\s*\{\s*foo\s*\}\s*from\s*["']\.\/x["']/.test(code)&&!/[^a-z]foo\(/.test(code))issues.push({rule:'@typescript-eslint/no-unused-vars',line:1,msg:"'foo' is defined but never used",sev:'error'});
+  if(/const\s+bar\s*=/.test(code)&&!/[^a-z]bar[^a-z]/.test(code.replace(/const\s+bar\s*=/,'')))issues.push({rule:'@typescript-eslint/no-unused-vars',line:2,msg:"'bar' is assigned a value but never used",sev:'error'});
+  if(/function\s+getUser\s*\(\s*id\s*\)/.test(code))issues.push({rule:'@typescript-eslint/no-explicit-any',line:4,msg:"Parameter 'id' implicitly has an 'any' type",sev:'error'});
+  if(/==\s*null/.test(code))issues.push({rule:'eqeqeq',line:5,msg:"Expected '===' and instead saw '=='",sev:'error'});
+  if(/console\.log/.test(code))issues.push({rule:'no-console',line:6,msg:"Unexpected console statement",sev:'warning'});
+  if(!issues.length){setOut('eslint-out','<span class="ok">✓ no problems</span>');return;}
+  let out='<span class="dim">/project/src/messy.ts</span>\n';
+  out+=issues.map(i=>{
+    const sev=i.sev==='error'?'<span class="err">error</span>':'<span class="warn">warning</span>';
+    return `  ${i.line}:1  ${sev}  ${esc(i.msg)}  <span class="dim">${i.rule}</span>`;
+  }).join('\n');
+  const errs=issues.filter(i=>i.sev==='error').length, warns=issues.filter(i=>i.sev==='warning').length;
+  out+=`\n\n<span class="err">✖ ${issues.length} problem${issues.length>1?'s':''} (${errs} error${errs!==1?'s':''}, ${warns} warning${warns!==1?'s':''})</span>`;
+  if(fix){
+    out+=`\n<span class="ok">  ${Math.min(errs,2)} error${Math.min(errs,2)!==1?'s':''} and ${warns} warning${warns!==1?'s':''} potentially fixable with the --fix option.</span>`;
+    out+=`\n<span class="ok">  Auto-fixed ${Math.min(errs,2)} issue${Math.min(errs,2)!==1?'s':''} (unused imports/vars removed).</span>`;
+  }
+  setOut('eslint-out',out);
+}
+function resetEslint(){const t=document.getElementById('eslint-in');t.value=`import { foo } from "./x";
+const bar = 42;
+
+function getUser(id) {
+  if (id == null) return;
+  console.log("debug", id);
+  return fetchUser(id);
+}`;autoGrow(t);setOut('eslint-out','<span class="dim">Click "eslint ." to see what\'s flagged.</span>');}
+
+/* ============== 3A: MYPY ============== */
+const MYPY_CASES={
+  ok:{src:`def add(a: int, b: int) -> int:
+    return a + b
+
+result: int = add(1, 2)
+print(result)`,
+    out:`<span class="ok">Success: no issues found in 1 source file</span>`},
+  strarg:{src:`def add(a: int, b: int) -> int:
+    return a + b
+
+result = add("1", "2")
+print(result.upper())`,
+    out:`<span class="err">messy.py:4: error: Argument 1 to "add" has incompatible type "str"; expected "int"  [arg-type]</span>
+<span class="err">messy.py:4: error: Argument 2 to "add" has incompatible type "str"; expected "int"  [arg-type]</span>
+<span class="err">messy.py:5: error: "int" has no attribute "upper"  [attr-defined]</span>
+<span class="dim">Found 3 errors in 1 file (checked 1 source file)</span>`},
+  badret:{src:`def get_name(user_id: int) -> str:
+    if user_id < 0:
+        return None
+    return "user-" + str(user_id)`,
+    out:`<span class="err">messy.py:3: error: Incompatible return value type (got "None", expected "str")  [return-value]</span>
+<span class="dim">Found 1 error in 1 file (checked 1 source file)</span>`},
+  noann:{src:`def add(a, b):           # no annotations
+    return a + b
+
+result = add("1", "2")    # MyPy strict mode flags missing annotations
+print(result.upper())`,
+    out:`<span class="err">messy.py:1: error: Function is missing a type annotation  [no-untyped-def]</span>
+<span class="warn">messy.py:4: note: With no annotations, MyPy can't catch the str/int mismatch.</span>
+<span class="dim">Found 1 error in 1 file (checked 1 source file)</span>`}
+};
+function resetMypy(){
+  const k=document.getElementById('mypy-case').value;
+  document.getElementById('mypy-src').textContent=MYPY_CASES[k].src;
+  setOut('mypy-out','<span class="dim">Click "mypy ." to type-check.</span>');
+}
+function runMypy(){
+  const k=document.getElementById('mypy-case').value;
+  setOut('mypy-out',MYPY_CASES[k].out);
+}
+resetMypy();
+
+/* ============== 3B: TSC ============== */
+const TSC_CASES={
+  ok:{src:`function add(a: number, b: number): number {
+  return a + b;
+}
+
+const result: number = add(1, 2);
+console.log(result.toFixed(2));`,
+    out:`<span class="ok">$ tsc --noEmit\n  Found 0 errors.</span>`},
+  strarg:{src:`function add(a: number, b: number): number {
+  return a + b;
+}
+
+const result = add("1", "2");
+console.log(result.toUpperCase());`,
+    out:`<span class="err">src/messy.ts(5,17): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.</span>
+<span class="err">src/messy.ts(5,22): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.</span>
+<span class="err">src/messy.ts(6,20): error TS2339: Property 'toUpperCase' does not exist on type 'number'.</span>
+<span class="dim">Found 3 errors in 1 file.</span>`},
+  propnotexist:{src:`type User = { name: string; email: string };
+
+function greet(u: User) {
+  return "hello " + u.nmae; // typo
+}`,
+    out:`<span class="err">src/messy.ts(4,24): error TS2551: Property 'nmae' does not exist on type 'User'. Did you mean 'name'?</span>
+<span class="dim">Found 1 error in 1 file.</span>`},
+  any:{src:`function add(a: any, b: any): any {
+  return a + b;
+}
+
+const result = add("1", "2");      // result is "12", not 3
+console.log(result.toFixed(2));    // runtime crash, but tsc is silent`,
+    out:`<span class="ok">$ tsc --noEmit\n  Found 0 errors.</span>
+<span class="warn">⚠ The bug is real, but \`any\` told the type checker not to look. This is why \`any\` is the silent killer.</span>`}
+};
+function resetTsc(){
+  const k=document.getElementById('tsc-case').value;
+  document.getElementById('tsc-src').textContent=TSC_CASES[k].src;
+  setOut('tsc-out','<span class="dim">Click "tsc --noEmit" to type-check.</span>');
+}
+function runTsc(){
+  const k=document.getElementById('tsc-case').value;
+  setOut('tsc-out',TSC_CASES[k].out);
+}
+resetTsc();
+
+/* ============== 4A: PRE-COMMIT PIPELINE ============== */
+function setStep(prefix,name,state,badge){
+  const el=document.querySelector(`#${prefix}-pipe .pipe-step[data-step="${name}"]`);
+  if(!el)return;
+  el.classList.remove('run','ok','err','skip');
+  if(state)el.classList.add(state);
+  const b=el.querySelector('.badge');
+  if(badge){b.className='badge '+badge.cls;b.textContent=badge.txt;}
+}
+function clearPipe(prefix){
+  document.querySelectorAll(`#${prefix}-pipe .pipe-step`).forEach(el=>{
+    el.classList.remove('run','ok','err','skip');
+    const b=el.querySelector('.badge');b.className='badge badge-info';b.textContent='pending';
+  });
+}
+async function runPrecommit(){
+  clearPipe('pc');
+  const file=document.getElementById('pc-file').value;
+  const bypass=document.getElementById('pc-bypass').value==='yes';
+  const out=document.getElementById('pc-out');
+  out.innerHTML='';
+  function log(html){out.innerHTML+=html+'\n';}
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  log('<span class="dim">$ git add src/messy.py</span>');
+  log(`<span class="dim">$ git commit ${bypass?'--no-verify ':''}-m "wip"</span>`);
+
+  if(bypass){
+    ['black','ruff','mypy'].forEach(s=>setStep('pc',s,'skip',{cls:'badge-warn',txt:'skipped'}));
+    setStep('pc','commit','ok',{cls:'badge-ok',txt:'committed'});
+    log('<span class="warn">⚠ hooks skipped (--no-verify)</span>');
+    log('<span class="ok">[main abc1234] wip</span>');
+    log('<span class="warn">  Commit landed without checks. CI is now your only safety net.</span>');
+    return;
+  }
+
+  setStep('pc','black','run',{cls:'badge-info',txt:'running'});
+  await sleep(450);
+  if(file==='clean'){
+    setStep('pc','black','ok',{cls:'badge-ok',txt:'passed'});
+    log('<span class="ok">black......................................Passed</span>');
+  }else{
+    setStep('pc','black','ok',{cls:'badge-warn',txt:'reformatted'});
+    log('<span class="warn">black......................................Failed (files were modified)</span>');
+    log('<span class="dim">  - reformatted src/messy.py</span>');
+    log('<span class="warn">  Files were modified by this hook. Stage the changes and commit again.</span>');
+    setStep('pc','ruff','skip',{cls:'badge-warn',txt:'skipped'});
+    setStep('pc','mypy','skip',{cls:'badge-warn',txt:'skipped'});
+    setStep('pc','commit','err',{cls:'badge-err',txt:'blocked'});
+    log('\n<span class="err">✖ commit blocked — re-run after `git add src/messy.py`.</span>');
+    return;
+  }
+
+  setStep('pc','ruff','run',{cls:'badge-info',txt:'running'});
+  await sleep(350);
+  if(file==='unused'||file==='typebug'){
+    setStep('pc','ruff','ok',{cls:'badge-warn',txt:'auto-fixed'});
+    log('<span class="warn">ruff.......................................Failed (auto-fixed)</span>');
+    log('<span class="dim">  - F401 src/messy.py:1: `os` imported but unused (removed)</span>');
+    log('<span class="warn">  Files were modified by this hook. Stage and commit again.</span>');
+    setStep('pc','mypy','skip',{cls:'badge-warn',txt:'skipped'});
+    setStep('pc','commit','err',{cls:'badge-err',txt:'blocked'});
+    log('\n<span class="err">✖ commit blocked — re-run after `git add src/messy.py`.</span>');
+    return;
+  }
+  setStep('pc','ruff','ok',{cls:'badge-ok',txt:'passed'});
+  log('<span class="ok">ruff.......................................Passed</span>');
+
+  setStep('pc','mypy','run',{cls:'badge-info',txt:'running'});
+  await sleep(450);
+  if(file==='typebug'){
+    setStep('pc','mypy','err',{cls:'badge-err',txt:'failed'});
+    log('<span class="err">mypy.......................................Failed</span>');
+    log('<span class="dim">  src/messy.py:4: error: Argument 1 to "add" has incompatible type "str"; expected "int"</span>');
+    setStep('pc','commit','err',{cls:'badge-err',txt:'blocked'});
+    log('\n<span class="err">✖ commit blocked — fix the type error and re-stage.</span>');
+    log('<span class="dim">  (MyPy cannot auto-fix. That\'s your job.)</span>');
+    return;
+  }
+  setStep('pc','mypy','ok',{cls:'badge-ok',txt:'passed'});
+  log('<span class="ok">mypy.......................................Passed</span>');
+
+  setStep('pc','commit','ok',{cls:'badge-ok',txt:'committed'});
+  log('\n<span class="ok">[main abc1234] wip</span>');
+  log('<span class="ok"> 1 file changed, 3 insertions(+), 1 deletion(-)</span>');
+}
+
+/* ============== 4B: HUSKY PIPELINE ============== */
+async function runHusky(){
+  clearPipe('hk');
+  const file=document.getElementById('hk-file').value;
+  const bypass=document.getElementById('hk-bypass').value==='yes';
+  const out=document.getElementById('hk-out');
+  out.innerHTML='';
+  function log(html){out.innerHTML+=html+'\n';}
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  log('<span class="dim">$ git add src/messy.ts</span>');
+  log(`<span class="dim">$ git commit ${bypass?'--no-verify ':''}-m "wip"</span>`);
+
+  if(bypass){
+    ['prettier','eslint','tsc'].forEach(s=>setStep('hk',s,'skip',{cls:'badge-warn',txt:'skipped'}));
+    setStep('hk','commit','ok',{cls:'badge-ok',txt:'committed'});
+    log('<span class="warn">⚠ Husky hook skipped (--no-verify)</span>');
+    log('<span class="ok">[main d3f4567] wip</span>');
+    return;
+  }
+
+  log('<span class="dim">husky - pre-commit</span>');
+  log('<span class="dim">$ npx lint-staged</span>');
+
+  setStep('hk','prettier','run',{cls:'badge-info',txt:'running'});
+  await sleep(400);
+  if(file==='clean'){
+    setStep('hk','prettier','ok',{cls:'badge-ok',txt:'passed'});
+    log('<span class="ok">✔ Running prettier --write on staged files</span>');
+  }else{
+    setStep('hk','prettier','ok',{cls:'badge-warn',txt:'reformatted'});
+    log('<span class="warn">✔ prettier --write reformatted src/messy.ts (re-staged)</span>');
+  }
+
+  setStep('hk','eslint','run',{cls:'badge-info',txt:'running'});
+  await sleep(400);
+  if(file==='unused'||file==='typebug'){
+    setStep('hk','eslint','ok',{cls:'badge-warn',txt:'auto-fixed'});
+    log('<span class="warn">✔ eslint --fix auto-fixed: removed unused import "foo" (re-staged)</span>');
+  }else{
+    setStep('hk','eslint','ok',{cls:'badge-ok',txt:'passed'});
+    log('<span class="ok">✔ eslint --fix on staged files</span>');
+  }
+
+  log('<span class="dim">$ npm run typecheck</span>');
+  log('<span class="dim">> tsc --noEmit  (whole project — needs full module graph)</span>');
+  setStep('hk','tsc','run',{cls:'badge-info',txt:'running'});
+  await sleep(550);
+  if(file==='typebug'){
+    setStep('hk','tsc','err',{cls:'badge-err',txt:'failed'});
+    log('<span class="err">src/messy.ts(5,17): error TS2345: Argument of type \'string\' is not assignable to parameter of type \'number\'.</span>');
+    log('<span class="err">Found 1 error in 1 file.</span>');
+    setStep('hk','commit','err',{cls:'badge-err',txt:'blocked'});
+    log('\n<span class="err">✖ husky - pre-commit hook exited with code 1</span>');
+    log('<span class="dim">  Fix the type error and re-stage. tsc cannot auto-fix.</span>');
+    return;
+  }
+  setStep('hk','tsc','ok',{cls:'badge-ok',txt:'passed'});
+  log('<span class="ok">✔ tsc --noEmit — no type errors</span>');
+
+  setStep('hk','commit','ok',{cls:'badge-ok',txt:'committed'});
+  log('\n<span class="ok">[main d3f4567] wip</span>');
+  log('<span class="ok"> 1 file changed, 3 insertions(+), 1 deletion(-)</span>');
+}
+
+/* ============== INITIAL FIT ============== */
+document.querySelectorAll('textarea').forEach(t=>{
+  autoGrow(t);
+  t.addEventListener('input',()=>autoGrow(t));
+});
+window.addEventListener('load',fitAll);
+</script>
+</body>
+</html>
